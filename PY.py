@@ -1,3 +1,23 @@
+import os
+import sys
+
+# Fix tkinter Tcl/Tk path issues on Windows with virtual environments
+if sys.platform == "win32" and hasattr(sys, 'base_prefix'):
+    # Get the base Python installation path
+    base_python = sys.base_prefix
+    tcl_path = os.path.join(base_python, 'tcl')
+    
+    # Set Tcl/Tk environment variables if not already set
+    if os.path.exists(tcl_path) and 'TCL_LIBRARY' not in os.environ:
+        # Find tcl8.6 directory
+        tcl_dirs = [d for d in os.listdir(tcl_path) if d.startswith('tcl8')]
+        tk_dirs = [d for d in os.listdir(tcl_path) if d.startswith('tk8')]
+        
+        if tcl_dirs:
+            os.environ['TCL_LIBRARY'] = os.path.join(tcl_path, tcl_dirs[0])
+        if tk_dirs:
+            os.environ['TK_LIBRARY'] = os.path.join(tcl_path, tk_dirs[0])
+
 import tkinter as tk
 from tkinter import messagebox
 from clips import Environment

@@ -236,9 +236,15 @@ class CovidDiagnosisGUI:
     
     def __init__(self, root):
         self.root = root
-        self.root.title("COVID-19 Diagnosis Expert System")
-        self.root.geometry("700x800")
-        self.root.resizable(False, False)
+        self.root.title("COVID-19 Diagnosis Expert System - AI Medical Assistant")
+        self.root.geometry("750x750")
+        self.root.resizable(True, True)
+        
+        # Set window icon behavior
+        try:
+            self.root.iconbitmap('default')
+        except:
+            pass
         
         # Initialize expert system
         self.expert_system = CovidExpertSystem()
@@ -252,116 +258,206 @@ class CovidDiagnosisGUI:
     def setup_ui(self):
         """Setup the user interface"""
         
-        # Main container
-        main_frame = ttk.Frame(self.root, padding="20")
+        # Configure root window
+        self.root.configure(bg='#f0f0f0')
+        
+        # Main container with background
+        main_frame = tk.Frame(self.root, bg='#f0f0f0', padx=30, pady=20)
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
+        # Header section with colored background
+        header_frame = tk.Frame(main_frame, bg='#2c3e50', padx=20, pady=15)
+        header_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))
+        
         # Title
-        title_label = ttk.Label(
+        title_label = tk.Label(
+            header_frame, 
+            text="🏥 COVID-19 Diagnosis Expert System",
+            font=('Arial', 20, 'bold'),
+            bg='#2c3e50',
+            fg='white'
+        )
+        title_label.pack()
+        
+        subtitle_label = tk.Label(
+            header_frame,
+            text="Rule-Based Symptom Assessment Tool",
+            font=('Arial', 11, 'italic'),
+            bg='#2c3e50',
+            fg='#ecf0f1'
+        )
+        subtitle_label.pack(pady=(5, 0))
+        
+        # Instruction section
+        instruction_frame = tk.Frame(main_frame, bg='#e8f4f8', bd=1, relief=tk.SOLID, padx=15, pady=10)
+        instruction_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))
+        
+        instruction_label = tk.Label(
+            instruction_frame,
+            text="📋 Please provide patient information and answer all symptom questions accurately",
+            font=('Arial', 10),
+            bg='#e8f4f8',
+            fg='#2c3e50',
+            wraplength=600,
+            justify=tk.LEFT
+        )
+        instruction_label.pack()
+        
+        # Patient Information Section
+        patient_frame = tk.LabelFrame(
             main_frame, 
-            text="COVID-19 Diagnosis Expert System",
-            font=('Arial', 18, 'bold')
+            text=" 👤 Patient Information ",
+            font=('Arial', 11, 'bold'),
+            bg='#f0f0f0',
+            fg='#2c3e50',
+            padx=15,
+            pady=10
         )
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 10))
+        patient_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
         
-        subtitle_label = ttk.Label(
+        tk.Label(
+            patient_frame, 
+            text="Patient Name:", 
+            font=('Arial', 10, 'bold'),
+            bg='#f0f0f0',
+            fg='#34495e'
+        ).grid(row=0, column=0, sticky=tk.W, pady=8)
+        
+        self.name_entry = tk.Entry(
+            patient_frame, 
+            width=35, 
+            font=('Arial', 11),
+            bd=2,
+            relief=tk.GROOVE
+        )
+        self.name_entry.grid(row=0, column=1, sticky=tk.W, pady=8, padx=(15, 0))
+        
+        # Symptom Assessment Section
+        symptom_frame = tk.LabelFrame(
             main_frame,
-            text="Please answer the following questions about your symptoms",
-            font=('Arial', 10)
+            text=" 🩺 Symptom Assessment ",
+            font=('Arial', 11, 'bold'),
+            bg='#f0f0f0',
+            fg='#2c3e50',
+            padx=15,
+            pady=10
         )
-        subtitle_label.grid(row=1, column=0, columnspan=2, pady=(0, 20))
+        symptom_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
         
-        # Patient Name
-        ttk.Label(main_frame, text="Patient Name:", font=('Arial', 11, 'bold')).grid(
-            row=2, column=0, sticky=tk.W, pady=5
-        )
-        self.name_entry = ttk.Entry(main_frame, width=30, font=('Arial', 10))
-        self.name_entry.grid(row=2, column=1, sticky=tk.W, pady=5, padx=(10, 0))
-        
-        # Symptom questions
         self.symptom_vars = {}
         symptoms = [
-            ("fever", "Do you have fever (≥37.8°C/100°F)?"),
-            ("cough", "Do you have a persistent cough?"),
-            ("breathing_difficulty", "Do you have difficulty breathing or shortness of breath?"),
-            ("fatigue", "Are you experiencing unusual tiredness or fatigue?"),
-            ("loss_of_taste_smell", "Have you lost your sense of taste or smell?"),
-            ("contact_with_positive", "Have you been in close contact with a confirmed COVID-19 case?")
+            ("fever", "🌡️ Do you have fever (≥37.8°C/100°F)?"),
+            ("cough", "😷 Do you have a persistent cough?"),
+            ("breathing_difficulty", "💨 Do you have difficulty breathing or shortness of breath?"),
+            ("fatigue", "😴 Are you experiencing unusual tiredness or fatigue?"),
+            ("loss_of_taste_smell", "👃 Have you lost your sense of taste or smell?"),
+            ("contact_with_positive", "🤝 Have you been in close contact with a confirmed COVID-19 case?")
         ]
         
-        row = 3
-        for key, question in symptoms:
-            ttk.Label(main_frame, text=question, font=('Arial', 10)).grid(
-                row=row, column=0, sticky=tk.W, pady=10, columnspan=2
-            )
-            row += 1
+        row = 0
+        for idx, (key, question) in enumerate(symptoms):
+            # Alternate background colors for better readability
+            bg_color = '#ffffff' if idx % 2 == 0 else '#f8f9fa'
+            
+            question_frame = tk.Frame(symptom_frame, bg=bg_color, padx=10, pady=8)
+            question_frame.grid(row=row, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=2)
+            
+            tk.Label(
+                question_frame, 
+                text=question, 
+                font=('Arial', 10),
+                bg=bg_color,
+                fg='#2c3e50',
+                anchor='w'
+            ).pack(side=tk.LEFT, fill=tk.X, expand=True)
             
             var = tk.StringVar(value="no")
             self.symptom_vars[key] = var
             
-            frame = ttk.Frame(main_frame)
-            frame.grid(row=row, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+            radio_frame = tk.Frame(question_frame, bg=bg_color)
+            radio_frame.pack(side=tk.RIGHT, padx=10)
             
-            ttk.Radiobutton(frame, text="Yes", variable=var, value="yes").pack(side=tk.LEFT, padx=(20, 10))
-            ttk.Radiobutton(frame, text="No", variable=var, value="no").pack(side=tk.LEFT)
+            yes_radio = tk.Radiobutton(
+                radio_frame, 
+                text="Yes", 
+                variable=var, 
+                value="yes",
+                font=('Arial', 9, 'bold'),
+                bg=bg_color,
+                fg='#e74c3c',
+                selectcolor='white',
+                activebackground=bg_color
+            )
+            yes_radio.pack(side=tk.LEFT, padx=8)
+            
+            no_radio = tk.Radiobutton(
+                radio_frame, 
+                text="No", 
+                variable=var, 
+                value="no",
+                font=('Arial', 9, 'bold'),
+                bg=bg_color,
+                fg='#27ae60',
+                selectcolor='white',
+                activebackground=bg_color
+            )
+            no_radio.pack(side=tk.LEFT, padx=8)
             
             row += 1
         
-        # Buttons
-        button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=row, column=0, columnspan=2, pady=20)
+        # Action Buttons
+        button_frame = tk.Frame(main_frame, bg='#f0f0f0')
+        button_frame.grid(row=4, column=0, columnspan=2, pady=25)
         
-        self.diagnose_btn = ttk.Button(
+        self.diagnose_btn = tk.Button(
             button_frame,
-            text="Get Diagnosis",
+            text="🔍 GET DIAGNOSIS",
             command=self.run_diagnosis,
-            width=20
+            font=('Arial', 16, 'bold'),
+            bg='#3498db',
+            fg='white',
+            activebackground='#2980b9',
+            activeforeground='white',
+            width=25,
+            height=2,
+            cursor='hand2',
+            relief=tk.RAISED,
+            bd=4
         )
-        self.diagnose_btn.pack(side=tk.LEFT, padx=5)
+        self.diagnose_btn.pack(pady=10)
         
-        self.reset_btn = ttk.Button(
+        self.reset_btn = tk.Button(
             button_frame,
-            text="Reset Form",
+            text="🔄 Reset Form",
             command=self.reset_form,
-            width=20
+            font=('Arial', 11),
+            bg='#95a5a6',
+            fg='white',
+            activebackground='#7f8c8d',
+            activeforeground='white',
+            padx=20,
+            pady=8,
+            cursor='hand2',
+            relief=tk.RAISED,
+            bd=3
         )
-        self.reset_btn.pack(side=tk.LEFT, padx=5)
-        
-        row += 1
-        
-        # Results area
-        ttk.Label(main_frame, text="Diagnosis Results:", font=('Arial', 12, 'bold')).grid(
-            row=row, column=0, columnspan=2, sticky=tk.W, pady=(10, 5)
-        )
-        row += 1
-        
-        self.results_text = scrolledtext.ScrolledText(
-            main_frame,
-            width=70,
-            height=12,
-            font=('Arial', 10),
-            wrap=tk.WORD,
-            state=tk.DISABLED
-        )
-        self.results_text.grid(row=row, column=0, columnspan=2, pady=(0, 10))
-        
-        # Configure text tags for colored output
-        self.results_text.tag_config('critical', foreground='red', font=('Arial', 11, 'bold'))
-        self.results_text.tag_config('high', foreground='orangered', font=('Arial', 11, 'bold'))
-        self.results_text.tag_config('medium', foreground='orange', font=('Arial', 11, 'bold'))
-        self.results_text.tag_config('low', foreground='green', font=('Arial', 11, 'bold'))
-        self.results_text.tag_config('bold', font=('Arial', 10, 'bold'))
+        self.reset_btn.pack(pady=5)
         
         # Disclaimer
-        row += 1
-        disclaimer = ttk.Label(
-            main_frame,
-            text="⚠ Disclaimer: This is an educational tool. Always consult healthcare professionals for medical advice.",
+        disclaimer_frame = tk.Frame(main_frame, bg='#fff3cd', bd=1, relief=tk.SOLID, padx=10, pady=8)
+        disclaimer_frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        
+        disclaimer = tk.Label(
+            disclaimer_frame,
+            text="⚠️  DISCLAIMER: This is an educational tool for learning purposes only.\n"
+                 "Always consult qualified healthcare professionals for medical advice and COVID-19 testing.",
             font=('Arial', 9, 'italic'),
-            foreground='gray',
-            wraplength=650
+            bg='#fff3cd',
+            fg='#856404',
+            wraplength=630,
+            justify=tk.CENTER
         )
-        disclaimer.grid(row=row, column=0, columnspan=2, pady=(10, 0))
+        disclaimer.pack()
     
     def run_diagnosis(self):
         """Run the expert system diagnosis"""
@@ -385,44 +481,213 @@ class CovidDiagnosisGUI:
         # Run diagnosis
         try:
             diagnosis = self.expert_system.diagnose(patient_data)
-            self.display_results(diagnosis)
+            self.show_results_window(diagnosis)
         except Exception as e:
             messagebox.showerror("Error", f"Diagnosis failed: {str(e)}")
     
-    def display_results(self, diagnosis):
-        """Display diagnosis results in the text area"""
-        self.results_text.config(state=tk.NORMAL)
-        self.results_text.delete(1.0, tk.END)
+    def show_results_window(self, diagnosis):
+        """Show diagnosis results in a new window"""
+        from datetime import datetime
         
-        # Format output
-        self.results_text.insert(tk.END, "=" * 70 + "\n")
-        self.results_text.insert(tk.END, f"Patient: {diagnosis['patient_name']}\n\n", 'bold')
+        # Create new window
+        results_window = tk.Toplevel(self.root)
+        results_window.title("Diagnosis Report - COVID-19 Expert System")
+        results_window.geometry("800x700")
+        results_window.resizable(False, False)
+        results_window.configure(bg='#f0f0f0')
         
-        # Add result with appropriate color
+        # Make window modal
+        results_window.transient(self.root)
+        results_window.grab_set()
+        
         risk_level = diagnosis['risk_level']
-        self.results_text.insert(tk.END, "Diagnosis: ", 'bold')
-        self.results_text.insert(tk.END, f"{diagnosis['result']}\n\n", risk_level)
         
-        # Add recommendation
-        self.results_text.insert(tk.END, "Recommendation:\n", 'bold')
-        self.results_text.insert(tk.END, f"{diagnosis['recommendation']}\n\n")
+        # Risk level colors
+        risk_colors = {
+            'critical': '#c0392b',
+            'high': '#d35400',
+            'medium': '#f39c12',
+            'low': '#27ae60'
+        }
         
-        # Add risk level
-        self.results_text.insert(tk.END, "Risk Level: ", 'bold')
-        self.results_text.insert(tk.END, f"{risk_level.upper()}\n", risk_level)
+        risk_bg_colors = {
+            'critical': '#fadbd8',
+            'high': '#fde3cf',
+            'medium': '#fef5e7',
+            'low': '#d5f4e6'
+        }
         
-        self.results_text.insert(tk.END, "=" * 70 + "\n")
+        main_color = risk_colors.get(risk_level, '#34495e')
+        bg_color = risk_bg_colors.get(risk_level, '#ffffff')
         
-        self.results_text.config(state=tk.DISABLED)
+        # Header with risk-based color
+        header_frame = tk.Frame(results_window, bg=main_color, padx=20, pady=20)
+        header_frame.pack(fill=tk.X)
+        
+        risk_icons = {
+            'critical': '🚨',
+            'high': '⚠️',
+            'medium': '⚡',
+            'low': '✅'
+        }
+        icon = risk_icons.get(risk_level, '📋')
+        
+        tk.Label(
+            header_frame,
+            text=f"{icon} DIAGNOSIS REPORT",
+            font=('Arial', 24, 'bold'),
+            bg=main_color,
+            fg='white'
+        ).pack()
+        
+        tk.Label(
+            header_frame,
+            text=f"Risk Level: {risk_level.upper()}",
+            font=('Arial', 14, 'bold'),
+            bg=main_color,
+            fg='white'
+        ).pack(pady=(5, 0))
+        
+        # Main content frame
+        content_frame = tk.Frame(results_window, bg='#f0f0f0', padx=30, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Patient Information Section
+        patient_frame = tk.LabelFrame(
+            content_frame,
+            text=" 👤 Patient Information ",
+            font=('Arial', 12, 'bold'),
+            bg='#ffffff',
+            fg='#2c3e50',
+            padx=20,
+            pady=15
+        )
+        patient_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        info_text = tk.Text(
+            patient_frame,
+            height=3,
+            font=('Arial', 11),
+            bg='#ffffff',
+            fg='#2c3e50',
+            bd=0,
+            wrap=tk.WORD
+        )
+        info_text.pack(fill=tk.X)
+        info_text.insert(tk.END, f"Name: {diagnosis['patient_name']}\n")
+        info_text.insert(tk.END, f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        info_text.insert(tk.END, f"Assessment ID: COVID-{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        info_text.config(state=tk.DISABLED)
+        
+        # Diagnosis Section
+        diagnosis_frame = tk.LabelFrame(
+            content_frame,
+            text=f" {icon} Diagnosis Result ",
+            font=('Arial', 12, 'bold'),
+            bg=bg_color,
+            fg=main_color,
+            padx=20,
+            pady=15
+        )
+        diagnosis_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        tk.Label(
+            diagnosis_frame,
+            text=diagnosis['result'],
+            font=('Arial', 16, 'bold'),
+            bg=bg_color,
+            fg=main_color,
+            wraplength=700,
+            justify=tk.CENTER
+        ).pack(pady=10)
+        
+        # Risk meter
+        risk_bars = {
+            'low': '█░░░░',
+            'medium': '███░░',
+            'high': '████░',
+            'critical': '█████'
+        }
+        
+        tk.Label(
+            diagnosis_frame,
+            text=f"Risk Meter: [{risk_bars.get(risk_level, '░░░░░')}]",
+            font=('Consolas', 14, 'bold'),
+            bg=bg_color,
+            fg=main_color
+        ).pack()
+        
+        # Recommendations Section
+        rec_frame = tk.LabelFrame(
+            content_frame,
+            text=" 💊 Medical Recommendations ",
+            font=('Arial', 12, 'bold'),
+            bg='#ffffff',
+            fg='#2c3e50',
+            padx=20,
+            pady=15
+        )
+        rec_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+        
+        rec_text = scrolledtext.ScrolledText(
+            rec_frame,
+            height=6,
+            font=('Arial', 11),
+            bg='#ffffff',
+            fg='#2c3e50',
+            wrap=tk.WORD,
+            bd=0,
+            padx=10,
+            pady=5
+        )
+        rec_text.pack(fill=tk.BOTH, expand=True)
+        rec_text.insert(tk.END, diagnosis['recommendation'])
+        rec_text.config(state=tk.DISABLED)
+        
+        # Footer note
+        note_frame = tk.Frame(content_frame, bg='#e8f4f8', bd=1, relief=tk.SOLID, padx=15, pady=10)
+        note_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        tk.Label(
+            note_frame,
+            text="📝 This assessment is generated using CLIPS expert system with rule-based AI logic.\n"
+                 "⚠️ For medical advice, please consult qualified healthcare professionals.",
+            font=('Arial', 9, 'italic'),
+            bg='#e8f4f8',
+            fg='#2c3e50',
+            justify=tk.CENTER
+        ).pack()
+        
+        # Close button
+        close_btn = tk.Button(
+            content_frame,
+            text="✓ Close Report",
+            command=results_window.destroy,
+            font=('Arial', 13, 'bold'),
+            bg='#34495e',
+            fg='white',
+            activebackground='#2c3e50',
+            activeforeground='white',
+            padx=40,
+            pady=12,
+            cursor='hand2',
+            relief=tk.RAISED,
+            bd=3
+        )
+        close_btn.pack(pady=10)
+        
+        # Center the window
+        results_window.update_idletasks()
+        x = (results_window.winfo_screenwidth() // 2) - (results_window.winfo_width() // 2)
+        y = (results_window.winfo_screenheight() // 2) - (results_window.winfo_height() // 2)
+        results_window.geometry(f'+{x}+{y}')
     
     def reset_form(self):
         """Reset all form fields"""
         self.name_entry.delete(0, tk.END)
         for var in self.symptom_vars.values():
             var.set("no")
-        self.results_text.config(state=tk.NORMAL)
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.config(state=tk.DISABLED)
+        messagebox.showinfo("Form Reset", "All fields have been reset successfully!")
 
 
 def main():
