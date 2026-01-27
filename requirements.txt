@@ -1,11 +1,17 @@
-# COVID-19 Diagnosis Expert System Requirements
-# Python 3.7+
+# TES6313 Expert Systems Project
+# Tomato Disease & Nutrient Expert System
+# ========================================
+# Python 3.8+
 
-# CLIPS Expert System for Python
+# CLIPS Python Interface
 clipspy>=1.0.0
 
-# Note: tkinter comes pre-installed with Python
-# If tkinter is missing, install it using your system package manager:
-# - Windows/macOS: Usually included with Python
-# - Ubuntu/Debian: sudo apt-get install python3-tk
-# - Fedora: sudo dnf install python3-tkinter
+# Web UI Framework
+streamlit>=1.28.0
+
+# Testing Framework
+pytest>=7.0.0
+
+# Optional: Data handling (if needed later)
+# pandas>=2.0.0
+# numpy>=1.24.0
