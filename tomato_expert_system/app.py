@@ -5,6 +5,8 @@ Owner: Member A (System Architect, Inference & UI Engineer)
 Purpose:
     Streamlit user interface for the Tomato Expert System.
     Provides symptom input, diagnosis execution, and result display.
+    
+    Style: Scientific, Minimalist, Academic, White-theme.
 
 Usage:
     streamlit run app.py
@@ -36,11 +38,68 @@ from utils.cf_utils import (
 # =============================================================================
 
 st.set_page_config(
-    page_title="Tomato Disease & Nutrient Expert System",
+    page_title="Tomato Diagnostics Expert System",
     page_icon="🍅",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Custom CSS for scientific/academic look
+st.markdown("""
+<style>
+    /* Global Text Styles */
+    body {
+        color: #333333;
+        background-color: #FFFFFF;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    
+    /* Headers */
+    h1, h2, h3 {
+        color: #2c3e50;
+        font-weight: 600;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #f8f9fa;
+        border-right: 1px solid #e9ecef;
+    }
+    
+    /* Result Cards */
+    div.result-card {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    
+    /* Metrics */
+    [data-testid="stMetricValue"] {
+        font-size: 1.8rem;
+        color: #2c3e50;
+    }
+    
+    /* Buttons */
+    button[data-testid="baseButton-primary"] {
+        background-color: #2c3e50;
+        border-color: #2c3e50;
+    }
+    button[data-testid="baseButton-primary"]:hover {
+        background-color: #34495e;
+        border-color: #34495e;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 
 # =============================================================================
@@ -62,27 +121,36 @@ def init_session_state():
 # =============================================================================
 
 def render_header():
-    """Render the application header."""
-    st.title("🍅 Tomato Expert System")
-    st.markdown("""
-    **Smart Disease Diagnosis & Nutrient Recommendation System**
+    """Render the application header with academic styling."""
     
-    This expert system uses rule-based reasoning with certainty factors
-    to diagnose tomato plant diseases and identify nutrient deficiencies.
+    # Header container
+    col1, col2 = st.columns([1, 4])
     
-    ---
-    """)
+    with col1:
+        # Placeholder for reliable tomato image
+        # Using a generic specific scientific-looking tomato illustration or icon
+        st.image("https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=80", use_container_width=True)
+    
+    with col2:
+        st.title("Tomato Expert System")
+        st.markdown("### Intelligent Diagnostic Support System")
+        st.markdown("""
+        *Rule-Based Inference Engine with Certainty Factor Reasoning*
+        
+        This system assists in the identification of tomato diseases and nutrient deficiencies
+        through symptom analysis. It employs a modular knowledge base and uncertainty
+        management to provide explainable diagnostic results.
+        """)
 
 
 def render_symptom_input():
     """Render the symptom input section."""
-    st.sidebar.header("📋 Symptom Input")
+    st.sidebar.markdown("## 📋 Clinical Observation")
+    st.sidebar.caption("Select observed symptoms and severity levels.")
     
     # Get symptom categories and severity options
     categories = get_symptom_categories()
     severity_options = load_severity_options()
-    
-    st.sidebar.markdown("Select observed symptoms and their severity:")
     
     selected_symptoms = []
     
@@ -90,20 +158,20 @@ def render_symptom_input():
     for category, symptoms in categories.items():
         with st.sidebar.expander(category, expanded=False):
             for symptom in symptoms:
-                col1, col2, col3 = st.columns([3, 2, 1])
+                st.markdown(f"**{get_symptom_display_name(symptom)}**")
+                col_check, col_sev, col_cf = st.columns([1, 3, 2])
                 
-                display_name = get_symptom_display_name(symptom)
-                
-                # Checkbox for symptom selection
-                with col1:
+                # Checkbox
+                with col_check:
                     is_selected = st.checkbox(
-                        display_name,
+                        "Observed",
                         key=f"symptom_{symptom}",
+                        label_visibility="collapsed"
                     )
                 
                 if is_selected:
-                    # Severity selection
-                    with col2:
+                    # Severity
+                    with col_sev:
                         severity = st.selectbox(
                             "Severity",
                             options=[s[0] for s in severity_options],
@@ -112,16 +180,14 @@ def render_symptom_input():
                             label_visibility="collapsed",
                         )
                     
-                    # Confidence slider
-                    with col3:
-                        cf = st.slider(
+                    # CF
+                    with col_cf:
+                        cf = st.number_input(
                             "CF",
-                            min_value=0.1,
-                            max_value=1.0,
-                            value=1.0,
-                            step=0.1,
+                            min_value=0.1, max_value=1.0, value=1.0, step=0.1,
                             key=f"cf_{symptom}",
                             label_visibility="collapsed",
+                            help="Certainty of observation (0.1 - 1.0)"
                         )
                     
                     selected_symptoms.append({
@@ -129,45 +195,30 @@ def render_symptom_input():
                         "severity": severity,
                         "cf": cf,
                     })
+                st.divider()
     
-    # Store in session state
     st.session_state.selected_symptoms = selected_symptoms
     
-    # Display selected symptoms count
-    st.sidebar.markdown("---")
-    st.sidebar.metric(
-        "Selected Symptoms",
-        len(selected_symptoms),
-    )
+    if selected_symptoms:
+        st.sidebar.info(f"{len(selected_symptoms)} symptoms recorded")
     
     return selected_symptoms
 
 
 def render_run_button():
-    """Render the diagnosis run button."""
+    """Render the run button."""
     st.sidebar.markdown("---")
     
-    col1, col2 = st.sidebar.columns(2)
+    if st.sidebar.button("🔬 Execute Diagnosis", type="primary", use_container_width=True):
+        return True
     
-    with col1:
-        run_clicked = st.button(
-            "🔬 Run Diagnosis",
-            type="primary",
-            use_container_width=True,
-        )
-    
-    with col2:
-        clear_clicked = st.button(
-            "🗑️ Clear",
-            use_container_width=True,
-        )
-    
-    if clear_clicked:
+    if st.sidebar.button("Reset System", use_container_width=True):
         st.session_state.results = None
         st.session_state.selected_symptoms = []
         st.rerun()
+        return False
     
-    return run_clicked
+    return False
 
 
 def run_diagnosis(symptoms: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -183,29 +234,46 @@ def run_diagnosis(symptoms: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def render_results(results: Dict[str, Any], symptoms: List[Dict[str, Any]]):
     """Render the diagnosis results."""
+    
+    st.markdown("## 📊 Diagnostic Report")
+    
     if not results:
         render_empty_state()
         return
     
-    # Summary at the top
-    st.markdown("## 📊 Diagnosis Summary")
-    summary = generate_summary(results.get("disease"), results.get("nutrient"))
-    st.info(summary)
+    # Summary Section
+    with st.container(border=True):
+        st.markdown("### Executive Summary")
+        summary_text = generate_summary(results.get("disease"), results.get("nutrient"))
+        st.markdown(f"**Findings:** {summary_text}")
     
-    # Create two columns for disease and nutrient
+    st.markdown("### Detailed Analysis")
     col1, col2 = st.columns(2)
     
-    # Disease Results
+    # Disease Analysis Column
     with col1:
-        render_disease_results(results)
-    
-    # Nutrient Results
+        with st.container(border=True):
+            render_disease_card(results)
+
+    # Nutrient Analysis Column
     with col2:
-        render_nutrient_results(results)
+        with st.container(border=True):
+            render_nutrient_card(results)
     
-    # Detailed Reasoning Chain
-    st.markdown("---")
-    with st.expander("📝 Detailed Reasoning Chain", expanded=False):
+    # Integration Analysis
+    if results.get("adjustments"):
+        with st.container(border=True):
+            st.markdown("### 🔄 Interaction Effects (Integration Layer)")
+            for adj in results["adjustments"]:
+                st.markdown(f"""
+                **{adj['nutrient'].title()} Confidence Adjustment:**
+                - Influence: *{adj['disease'].replace('-', ' ').title()}*
+                - Impact Factor: `{adj['impact_factor']:.2f}`
+                - Adjustment: `{cf_to_percentage(adj['original_cf'])}` → `{cf_to_percentage(adj['adjusted_cf'])}`
+                """)
+
+    # Reasoning Chain
+    with st.expander("📄 View Full Reasoning Trace"):
         symptom_names = [s["name"] for s in symptoms]
         reasoning = format_reasoning_chain(
             symptom_names,
@@ -214,157 +282,50 @@ def render_results(results: Dict[str, Any], symptoms: List[Dict[str, Any]]):
             results.get("adjustments"),
         )
         st.markdown(reasoning)
-    
-    # Debug Information (collapsible)
-    with st.expander("🔧 Debug Information", expanded=False):
-        st.json({
-            "rules_fired": results.get("rules_fired"),
-            "phase": results.get("phase"),
-            "all_diseases": results.get("all_diseases"),
-            "all_nutrients": results.get("all_nutrients"),
-            "adjustments": results.get("adjustments"),
-        })
 
 
-def render_disease_results(results: Dict[str, Any]):
-    """Render disease diagnosis results."""
-    st.markdown("### 🔬 Disease Diagnosis")
-    
+def render_disease_card(results: Dict[str, Any]):
+    st.markdown("#### 🔬 Disease Pathology")
     disease = results.get("disease")
     
     if disease and disease.get("name") != "none":
-        name = disease["name"].replace("-", " ").title()
-        cf = disease["cf"]
-        explanation = disease.get("explanation", "")
-        
-        # Main result card
-        st.success(f"**{name}**")
-        
-        # Confidence meter
-        st.metric(
-            "Confidence",
-            cf_to_percentage(cf),
-            cf_to_confidence_level(cf),
-        )
-        
-        # Progress bar for CF
-        st.progress(max(0, cf))
-        
-        # Explanation
-        if explanation:
-            st.markdown("**Reasoning:**")
-            st.markdown(explanation)
-        
-        # Alternative diagnoses
-        all_diseases = results.get("all_diseases", [])
-        if len(all_diseases) > 1:
-            st.markdown("**Other Possibilities:**")
-            for d in all_diseases[1:3]:  # Show top 2 alternatives
-                alt_name = d["name"].replace("-", " ").title()
-                alt_cf = cf_to_percentage(d["cf"])
-                st.caption(f"• {alt_name}: {alt_cf}")
+        st.success(f"**{disease['name'].replace('-', ' ').title()}**")
+        st.metric("Certainty Factor", f"{disease['cf']:.2f}")
+        st.progress(max(0, disease['cf']))
+        st.markdown(f"**Reasoning:** {disease.get('explanation', '')}")
     else:
-        st.info("No disease detected based on provided symptoms.")
+        st.info("No pathogenic disease identified from current symptoms.")
 
 
-def render_nutrient_results(results: Dict[str, Any]):
-    """Render nutrient recommendation results."""
-    st.markdown("### 🥗 Nutrient Recommendation")
-    
+def render_nutrient_card(results: Dict[str, Any]):
+    st.markdown("#### 🥗 Nutritional Status")
     nutrient = results.get("nutrient")
     
     if nutrient and nutrient.get("name") != "none":
-        name = nutrient["name"].replace("-", " ").title()
-        cf = nutrient["cf"]
-        explanation = nutrient.get("explanation", "")
-        
-        # Main result card
-        st.warning(f"**{name} Deficiency**")
-        
-        # Confidence meter
-        st.metric(
-            "Confidence",
-            cf_to_percentage(cf),
-            cf_to_confidence_level(cf),
-        )
-        
-        # Progress bar for CF
-        st.progress(max(0, cf))
-        
-        # Explanation
-        if explanation:
-            st.markdown("**Reasoning:**")
-            st.markdown(explanation)
-        
-        # Check for CF adjustments
-        adjustments = results.get("adjustments", [])
-        nutrient_adj = [a for a in adjustments if a["nutrient"] == nutrient["name"]]
-        if nutrient_adj:
-            adj = nutrient_adj[0]
-            if adj["original_cf"] != adj["adjusted_cf"]:
-                st.caption(
-                    f"*CF adjusted from {cf_to_percentage(adj['original_cf'])} "
-                    f"due to {adj['disease'].replace('-', ' ').title()} "
-                    f"(factor: {adj['impact_factor']:.2f})*"
-                )
-        
-        # Alternative recommendations
-        all_nutrients = results.get("all_nutrients", [])
-        if len(all_nutrients) > 1:
-            st.markdown("**Other Possibilities:**")
-            for n in all_nutrients[1:3]:  # Show top 2 alternatives
-                alt_name = n["name"].replace("-", " ").title()
-                alt_cf = cf_to_percentage(n["cf"])
-                st.caption(f"• {alt_name}: {alt_cf}")
+        st.warning(f"**{nutrient['name'].replace('-', ' ').title()} Deficiency**")
+        st.metric("Certainty Factor", f"{nutrient['cf']:.2f}")
+        st.progress(max(0, nutrient['cf']))
+        st.markdown(f"**Reasoning:** {nutrient.get('explanation', '')}")
     else:
-        st.info("No nutrient deficiency detected based on provided symptoms.")
+        st.info("No nutritional deficiencies identified.")
 
 
 def render_empty_state():
-    """Render the empty state when no diagnosis has been run."""
-    st.markdown("## 🌱 Welcome to the Tomato Expert System")
-    
+    """Render the empty state."""
     st.markdown("""
-    ### How to Use
+    <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; border-left: 5px solid #2c3e50;'>
+        <h4>System Ready</h4>
+        <p>Please enter observed symptoms in the sidebar to initiate the diagnostic process.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    1. **Select Symptoms** from the sidebar
-       - Choose the symptoms you observe on your tomato plant
-       - Set the severity level for each symptom
-       - Adjust confidence if you're uncertain about a symptom
-    
-    2. **Run Diagnosis**
-       - Click the "Run Diagnosis" button
-       - The system will analyze your symptoms
-    
-    3. **View Results**
-       - See disease diagnosis with confidence levels
-       - Get nutrient deficiency recommendations
-       - Review the reasoning chain
-    
-    ---
-    
-    ### About This System
-    
-    This expert system uses:
-    - **Rule-based reasoning** with CLIPS inference engine
-    - **Certainty Factors (CF)** for uncertainty handling
-    - **Disease-nutrient integration** for comprehensive recommendations
-    
-    The system was developed as part of the TES6313 Expert Systems course.
-    """)
-    
-    # Show example
-    with st.expander("📖 Example Symptoms"):
-        st.markdown("""
-        Try selecting these symptoms to test the system:
-        
-        - Yellow Leaves (moderate severity)
-        - Brown Spots (severe severity)
-        - Wilting (mild severity)
-        
-        These symptoms might indicate various diseases like Early Blight
-        or nutrient deficiencies like Nitrogen deficiency.
-        """)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image("https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80", caption="Healthy Leaf Structure")
+    with col2:
+        st.image("https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=300&q=80", caption="Fruit Development")
+    with col3:
+        st.image("https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=300&q=80", caption="Root Systems")
 
 
 # =============================================================================
@@ -372,44 +333,26 @@ def render_empty_state():
 # =============================================================================
 
 def main():
-    """Main application entry point."""
-    # Initialize session state
     init_session_state()
-    
-    # Render header
     render_header()
-    
-    # Render symptom input (sidebar)
     symptoms = render_symptom_input()
     
-    # Render run button
-    run_clicked = render_run_button()
-    
-    # Run diagnosis if button clicked
-    if run_clicked:
+    if render_run_button():
         if symptoms:
-            with st.spinner("Running diagnosis..."):
-                results = run_diagnosis(symptoms)
-                st.session_state.results = results
+            with st.spinner("Processing knowledge rules..."):
+                st.session_state.results = run_diagnosis(symptoms)
         else:
-            st.sidebar.warning("Please select at least one symptom.")
+            st.sidebar.warning("Input required: No symptoms selected.")
     
-    # Render results or empty state
-    if st.session_state.results:
-        render_results(st.session_state.results, symptoms)
-    else:
-        render_empty_state()
+    render_results(st.session_state.results, symptoms)
     
-    # Footer
     st.markdown("---")
-    st.caption(
-        "TES6313 Expert Systems Project | "
-        "Rule-Based Expert System with Certainty Factors"
-    )
+    st.caption("TES6313 Project | Department of Computer Science & Agriculture | Academic Use Only")
 
 
 if __name__ == "__main__":
     main()
+
 
 
 # =============================================================================
