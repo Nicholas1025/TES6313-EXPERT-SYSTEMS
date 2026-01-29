@@ -70,11 +70,23 @@
 
 ;;; Symptom fact template
 ;;; Asserted by: Python (run_system.py) based on user input
-;;; Format: (symptom <name>)
-;;; Example: (symptom brown-leaf-spots)
+;;; Format: (symptom <name> <severity> <cf>)
+;;; Example: (symptom (name brown-leaf-spots) (severity moderate) (cf 0.9))
 (deftemplate MAIN::symptom
    "Represents an observed symptom"
-   (slot name (type SYMBOL)))          ; e.g., brown-leaf-spots, yellow-halos
+   (slot name (type SYMBOL))           ; e.g., brown-leaf-spots, yellow-halos
+   (slot severity (type SYMBOL)        ; mild, moderate, severe
+         (default moderate))
+   (slot cf (type FLOAT)               ; certainty of symptom presence
+         (default 1.0)))
+
+;;; Growth stage fact template
+;;; Asserted by: Python (run_system.py) - REQUIRED for nutrient rules
+;;; Format: (growth-stage (name <stage>))
+;;; Example: (growth-stage (name vegetative))
+(deftemplate MAIN::growth-stage
+   "Represents the current growth stage of the plant"
+   (slot name (type SYMBOL)))          ; rooting, vegetative, flowering, fruiting
 
 ;;; Disease diagnosis result template
 ;;; Asserted by: disease_rules.clp (Member B)
@@ -94,6 +106,38 @@
    (slot cf (type FLOAT))              ; certainty factor [-1.0, 1.0]
    (slot explanation (type STRING)     ; reasoning explanation
          (default "")))
+
+;;; Nutrient working template (internal use during inference)
+;;; Asserted by: nutrient_rules.clp (Member C) during diagnosis
+;;; Tracks CF adjustments and evidence
+(deftemplate MAIN::nutrient
+   "Working nutrient fact for diagnosis (internal to nutrient reasoning)"
+   (slot name (type SYMBOL))           ; e.g., nitrogen, potassium, calcium
+   (slot cf (type FLOAT))              ; current certainty factor
+   (slot base-cf (type FLOAT))         ; base CF from growth stage rules
+   (slot modified (type SYMBOL)        ; whether CF has been modified
+         (default no)))
+
+;;; Symptom evidence template (CF from symptoms)
+;;; Asserted by: nutrient_rules.clp (Member C) during symptom evaluation
+(deftemplate MAIN::symptom-cf
+   "Stores CF value for a nutrient from a symptom"
+   (slot nutrient (type SYMBOL))       ; which nutrient this supports
+   (slot cf (type FLOAT)))             ; CF from symptom evidence
+
+;;; Final aggregated symptom CF (after aggregation/reinforcement)
+;;; Asserted by: nutrient_rules.clp (Member C)
+(deftemplate MAIN::symptom-cf-final
+   "Final aggregated CF from all symptoms for a nutrient"
+   (slot nutrient (type SYMBOL))       ; which nutrient
+   (slot cf (type FLOAT)))             ; aggregated CF value
+
+;;; Final nutrient diagnosis (after CF integration)
+;;; Asserted by: nutrient_rules.clp (Member C) at salience -50
+(deftemplate MAIN::nutrient-final
+   "Final nutrient diagnosis after CF integration"
+   (slot name (type SYMBOL))           ; nutrient name
+   (slot cf (type FLOAT)))             ; final integrated CF
 
 ;;; Disease-Nutrient Impact Factor template
 ;;; Asserted by: Member C (defines the impact relationships)
