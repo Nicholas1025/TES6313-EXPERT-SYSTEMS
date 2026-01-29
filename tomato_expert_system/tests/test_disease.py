@@ -151,48 +151,87 @@ def expert_system():
 # MEMBER B: ADD YOUR DISEASE TESTS BELOW THIS LINE
 # =============================================================================
 
-class TestDiseaseRulesPlaceholder:
-    """
-    Placeholder test class for disease rules.
+class TestDiseaseRules: # class name start with Test
+    # Cover core disease rules with representative tests:
+    # strong rules, weak rules, medium rules
+    # probability theory (OR gate) calculation, priority, etc.
+
+    def test_early_blight_strong(self, expert_system):
+        # test disease early blight with strong symptoms
+        symptoms = [
+            {"name": "brown-leaf-spots"},
+            {"name": "yellow-halos"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        assert results["disease"]["name"] == "early-blight"
+        assert results["disease"]["cf"] >= 0.76
     
-    Member B: Replace this with actual disease rule tests.
-    """
-    
-    def test_placeholder(self):
-        """
-        Placeholder test - remove when adding actual tests.
-        """
-        # This test always passes - it's just a placeholder
-        assert True, "Member B: Implement disease rule tests here"
+    def test_septoria_weak(self, expert_system):
+        # test disease septoria leaf spot with weak symptoms
+        symptoms = [
+            {"name": "small-gray-tan-spots"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        assert results["disease"]["name"] == "septoria-leaf-spot"
+        assert 0.38 <= results["disease"]["cf"] <= 0.39
+
+    def test_fusarium_medium(self, expert_system):
+        # test disease fusarium wilt with medium symptoms
+        symptoms = [
+            {"name": "lower-leaf-yellowing"},
+            {"name": "plant-wilting"},
+            {"name": "bottom-up-collapse"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        assert results["disease"]["name"] == "fusarium-wilt"
+        assert 0.31 <= results["disease"]["cf"] <= 0.32
 
 
-# Example test structure (commented out - Member B will implement):
-#
-# class TestEarlyBlight:
-#     '''Tests for Early Blight (Alternaria solani) diagnosis.'''
-#     
-#     def test_early_blight_high_confidence(self, expert_system):
-#         '''Test early blight with strong symptoms.'''
-#         symptoms = [
-#             {"name": "brown-spots", "severity": "severe", "cf": 1.0},
-#             {"name": "concentric-rings", "severity": "moderate", "cf": 0.9},
-#         ]
-#         results = expert_system.run_diagnosis(symptoms)
-#         assert results["disease"]["name"] == "early-blight"
-#         assert results["disease"]["cf"] >= 0.7
-#
-#
-# class TestLateBlight:
-#     '''Tests for Late Blight (Phytophthora infestans) diagnosis.'''
-#     
-#     def test_late_blight_wet_conditions(self, expert_system):
-#         '''Test late blight with characteristic symptoms.'''
-#         symptoms = [
-#             {"name": "water-soaked-lesions", "severity": "severe", "cf": 1.0},
-#             {"name": "white-mold", "severity": "moderate", "cf": 0.8},
-#         ]
-#         results = expert_system.run_diagnosis(symptoms)
-#         assert results["disease"]["name"] == "late-blight"
+    def test_mosaic_prob_or(self, expert_system):
+        # test disease mosaic with trigger OR gate
+        symptoms = [
+            {"name": "leaf-mottling"},
+            {"name": "leaf-distortion"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        assert results["disease"]["name"] == "mosaic-virus"
+        assert results["disease"]["cf"] >= 0.62
+
+
+    def test_bacterial_medium(self, expert_system):
+        # test disease bacterial with medium symptoms and OR gate
+        symptoms = [
+            {"name": "small-dark-spots"},
+            {"name": "leaf-yellowing"},
+            {"name": "leaf-drop"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        assert results["disease"]["name"] == "bacterial-spot"
+        assert 0.58 <= results["disease"]["cf"] <= 0.59
+
+
+    def test_priority(self, expert_system):
+        # test priority when multiple diseases match
+        symptoms = [
+            {"name": "brown-leaf-spots"},
+            {"name": "yellow-halos"},
+        ]
+
+        results = expert_system.run_diagnosis(symptoms)
+
+        highest = max(d["cf"] for d in results["all_diseases"])
+        assert abs(results["disease"]["cf"] - highest) < 0.001
+
 
 
 # =============================================================================

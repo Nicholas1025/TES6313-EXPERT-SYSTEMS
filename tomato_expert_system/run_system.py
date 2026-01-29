@@ -102,24 +102,19 @@ class TomatoExpertSystem:
         
         Args:
             symptoms: List of symptom dictionaries with keys:
-                - name: Symptom name (symbol)
-                - severity: Severity level (mild/moderate/severe)
-                - cf: Certainty factor (0.0 to 1.0)
+                - name: Symptom name (symbol) — only required key
+                - severity: (ignored) kept for backward compatibility
+                - cf: (ignored) kept for backward compatibility
         
         Example:
             system.assert_symptoms([
-                {"name": "yellow-leaves", "severity": "moderate", "cf": 1.0},
-                {"name": "brown-spots", "severity": "severe", "cf": 0.9},
+                {"name": "brown-leaf-spots"},
+                {"name": "yellow-halos"},
             ])
         """
-        symptom_template = self.env.find_template("symptom")
-        
         for symptom in symptoms:
-            fact = symptom_template.new_fact()
-            fact["name"] = clips.Symbol(symptom.get("name", "unknown"))
-            fact["severity"] = clips.Symbol(symptom.get("severity", "moderate"))
-            fact["cf"] = float(symptom.get("cf", 1.0))
-            fact.assertit()
+            symptom_name = clips.Symbol(symptom.get("name", "unknown"))
+            self.env.assert_string(f"(symptom (name {symptom_name}))")
     
     def run_inference(self) -> int:
         """

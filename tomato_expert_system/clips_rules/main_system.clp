@@ -70,22 +70,21 @@
 
 ;;; Symptom fact template
 ;;; Asserted by: Python (run_system.py) based on user input
+;;; Format: (symptom <name>)
+;;; Example: (symptom brown-leaf-spots)
 (deftemplate MAIN::symptom
-   "Represents an observed symptom with optional certainty"
-   (slot name (type SYMBOL))           ; e.g., yellow-leaves, brown-spots
-   (slot severity (type SYMBOL)        ; mild, moderate, severe
-         (default moderate))
-   (slot cf (type FLOAT)               ; certainty factor [0.0, 1.0]
-         (default 1.0)))
+   "Represents an observed symptom"
+   (slot name (type SYMBOL)))          ; e.g., brown-leaf-spots, yellow-halos
 
 ;;; Disease diagnosis result template
 ;;; Asserted by: disease_rules.clp (Member B)
 (deftemplate MAIN::disease
-   "Represents a diagnosed disease with certainty factor"
-   (slot name (type SYMBOL))           ; e.g., early-blight, bacterial-spot
+   "Represents a diagnosed disease with certainty factor and evidence"
+   (slot name (type SYMBOL))           ; e.g., early-blight, septoria-leaf-spot
    (slot cf (type FLOAT))              ; certainty factor [-1.0, 1.0]
    (slot explanation (type STRING)     ; reasoning explanation
-         (default "")))
+         (default ""))
+   (multislot evidence))               ; symptom evidence used
 
 ;;; Nutrient deficiency result template
 ;;; Asserted by: nutrient_rules.clp (Member C)
@@ -113,6 +112,16 @@
    (slot adjusted-cf (type FLOAT))
    (slot applied-disease (type SYMBOL))
    (slot impact-factor (type FLOAT)))
+
+;;; Disease-Symptom Knowledge Table
+;;; Asserted by: disease_rules.clp (Member B)
+;;; Stores the relationships between diseases and their symptoms
+(deftemplate MAIN::disease-symptom
+   "Maps diseases to symptoms with role (core/support) and CF value"
+   (slot disease (type SYMBOL))        ; e.g., early-blight, septoria
+   (slot symptom (type SYMBOL))        ; e.g., brown-leaf-spots, yellow-halos
+   (slot role (type SYMBOL))           ; core or support
+   (slot cf (type FLOAT)))             ; certainty factor for this symptom
 
 ;;; Final resolved conclusion templates
 (deftemplate MAIN::final-disease
