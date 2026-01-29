@@ -143,7 +143,7 @@
    (assert (disease
       (name early-blight)
       (cf (* (min ?c1 ?c2) ?*RULE-CF-STRONG*))
-      (explanation "Early blight: multiple core symptoms.")
+      (explanation (str-cat "Early blight diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -158,7 +158,7 @@
    (assert (disease
       (name early-blight)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Early blight: single core symptom.")
+      (explanation (str-cat "Early blight suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
 
@@ -182,7 +182,7 @@
    (assert (disease
       (name septoria-leaf-spot)
       (cf (* (min ?c1 ?c2) ?*RULE-CF-STRONG*))
-      (explanation "Septoria: multiple core symptoms.")
+      (explanation (str-cat "Septoria leaf spot diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -197,7 +197,7 @@
    (assert (disease
       (name septoria-leaf-spot)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Septoria: single core symptom.")
+      (explanation (str-cat "Septoria leaf spot suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
 
@@ -222,7 +222,7 @@
    (assert (disease
       (name late-blight)
       (cf (* (min ?c1 ?c2) ?*RULE-CF-STRONG*))
-      (explanation "Late blight: multiple core symptoms.")
+      (explanation (str-cat "Late blight diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -237,7 +237,7 @@
    (assert (disease
       (name late-blight)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Late blight: single core symptom.")
+      (explanation (str-cat "Late blight suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
 
@@ -262,7 +262,7 @@
    (assert (disease
       (name fusarium-wilt)
       (cf (* (min ?c1 ?c2) ?*RULE-CF-STRONG*))
-      (explanation "Fusarium: multiple core symptoms.")
+      (explanation (str-cat "Fusarium wilt diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -308,7 +308,10 @@
       (disease
          (name fusarium-wilt)
          (cf ?final)
-         (explanation "Fusarium: core + two supporting symptoms.")
+         (explanation
+            (str-cat
+                "Fusarium wilt diagnosed based on symptoms: "
+                ?c ", " ?s1 ", " ?s2))
          (evidence (create$ ?c ?s1 ?s2))))
 )
 
@@ -324,7 +327,7 @@
    (assert (disease
       (name fusarium-wilt)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Fusarium: single core symptom.")
+      (explanation (str-cat "Fusarium wilt suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
 
@@ -351,7 +354,7 @@
    (assert (disease
       (name mosaic-virus)
       (cf (* ?agg ?*RULE-CF-STRONG*))
-      (explanation "Mosaic: multiple core symptoms.")
+      (explanation (str-cat "Mosaic virus diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -366,7 +369,7 @@
    (assert (disease
       (name mosaic-virus)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Mosaic: single core symptom.")
+      (explanation (str-cat "Mosaicvirus suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
 
@@ -393,7 +396,7 @@
    (assert (disease
       (name bacterial-spot)
       (cf (* ?agg ?*RULE-CF-STRONG*))
-      (explanation "Bacterial: multiple core symptoms.")
+      (explanation (str-cat "Bacterial spot diagnosed based on symptoms: " ?s1 ", " ?s2))
       (evidence (create$ ?s1 ?s2))))
 )
 
@@ -438,7 +441,10 @@
       (disease
          (name bacterial-spot)
          (cf ?final)
-         (explanation "Bacterial: core + two supporting symptoms.")
+         (explanation
+            (str-cat
+                "Bacterial spot diagnosed based on symptoms: "
+                ?c ", " ?s1 ", " ?s2))
          (evidence (create$ ?c ?s1 ?s2))))
 )
 
@@ -454,6 +460,6 @@
    (assert (disease
       (name bacterial-spot)
       (cf (* ?cf ?*RULE-CF-WEAK*))
-      (explanation "Bacterial: single core symptom.")
+      (explanation (str-cat "Bacterial spot suspected based on symptom: " ?s))
       (evidence (create$ ?s))))
 )
