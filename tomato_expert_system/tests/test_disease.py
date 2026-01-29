@@ -1,143 +1,41 @@
 """
-test_disease.py
-Owner: Member B (Disease Knowledge Engineer)
+This test_disease.py aims to verify the disease diagnosis rules in the tomato expert system.
 
-============================================================
-THIS FILE IS OWNED BY MEMBER B
-Member A provides structure and guidance only.
-Actual test cases will be implemented after rule finalization.
-============================================================
+In this system, verification is carried out using automated tests with Python and PyTest. 
+The test class TestDiseaseRules is used to check the main disease rules. 
+Each test case gives a set of symptoms and 
+checks whether the system returns the correct disease and certainty factor (CF).
 
-Purpose:
-    Rule-level verification tests for disease diagnosis rules.
-    Tests should verify that disease rules fire correctly
-    given specific symptom combinations.
+The tests cover strong, medium, and weak symptom cases. 
+They also check OR-gate calculations and rule priority when more than one disease is matched.
 
-Test Categories Expected:
-    1. Individual Disease Rule Tests
-       - Test each disease rule in isolation
-       - Verify correct symptom → disease mapping
-       - Verify CF values are correctly calculated
+By running these tests, errors in rules, logic, or calculations can be found early. 
+This helps ensure that the expert system works correctly and gives reliable results.
 
-    2. Symptom Combination Tests
-       - Test different symptom combinations
-       - Verify correct disease is diagnosed
-       - Verify priority when multiple diseases match
+Expected Outcome
+1. Individual Disease Rule Tests
+    Each disease rule is tested using specific symptoms.
+    The system correctly matches symptoms to the correct disease.
+    The system produces certainty factor (CF) values within the expected range.
 
-    3. CF Value Tests
-       - Verify CF values match literature justification
-       - Test CF propagation through rules
+2. CF Value Tests
+    The system calculates CF values correctly based on the given rules.
+    CF calculations using OR-gate rules are handled correctly.
 
-============================================================
-GUIDANCE FOR MEMBER B
-============================================================
-
-Expected Test Structure:
-------------------------
-
-Each test should follow this pattern:
-
-    def test_disease_<disease_name>_<scenario>(self):
-        '''Test <disease> diagnosis with <scenario>.'''
-        # 1. Define test symptoms
-        symptoms = [
-            {"name": "<symptom>", "severity": "<level>", "cf": <value>},
-            ...
-        ]
-        
-        # 2. Run inference
-        results = self.system.run_diagnosis(symptoms)
-        
-        # 3. Assert expected disease
-        assert results["disease"]["name"] == "<expected-disease>"
-        
-        # 4. Assert CF within expected range
-        assert results["disease"]["cf"] >= <min_cf>
-        assert results["disease"]["cf"] <= <max_cf>
-
-
-Expected Input Format (Symptoms):
----------------------------------
-
-    {
-        "name": str,      # Symptom symbol (e.g., "brown-spots")
-        "severity": str,  # "mild", "moderate", or "severe"
-        "cf": float       # Certainty factor [0.0, 1.0]
-    }
-
-
-Expected Output Format (Disease):
----------------------------------
-
-    results["disease"] = {
-        "name": str,        # Disease symbol (e.g., "early-blight")
-        "cf": float,        # Certainty factor [-1.0, 1.0]
-        "explanation": str  # Reasoning explanation
-    }
-
-
-Example Test Case Template:
----------------------------
-
-class TestEarlyBlight:
-    '''Tests for Early Blight diagnosis rules.'''
-    
-    def test_early_blight_classic_symptoms(self, expert_system):
-        '''
-        Test: Classic early blight symptom combination
-        
-        Symptoms:
-            - brown-spots (severe)
-            - concentric-rings (moderate)
-            - yellow-leaves (moderate)
-        
-        Expected: early-blight with CF >= 0.8
-        
-        Literature Reference: [Citation needed]
-        '''
-        symptoms = [
-            {"name": "brown-spots", "severity": "severe", "cf": 1.0},
-            {"name": "concentric-rings", "severity": "moderate", "cf": 0.9},
-            {"name": "yellow-leaves", "severity": "moderate", "cf": 0.8},
-        ]
-        
-        results = expert_system.run_diagnosis(symptoms)
-        
-        assert results["disease"]["name"] == "early-blight"
-        assert results["disease"]["cf"] >= 0.8
-
-
-Coordinate With:
-----------------
-
-- Member A: Symptom list and fact schema
-- Member C: Disease names for impact factor mapping
-
-============================================================
-PLACEHOLDER: Actual Tests
-============================================================
 """
 
 import pytest
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
+#add parent directory to path for import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-# =============================================================================
-# Test Fixtures
-# =============================================================================
-
 @pytest.fixture
 def expert_system():
-    """
-    Create expert system instance for testing.
-    
-    Note: Member B should ensure disease_rules.clp is complete
-    before running these tests.
-    """
+    # to create expert system instance for testing
+
     try:
         from run_system import TomatoExpertSystem
         system = TomatoExpertSystem()
@@ -146,10 +44,6 @@ def expert_system():
     except ImportError:
         pytest.skip("CLIPSPY not available")
 
-
-# =============================================================================
-# MEMBER B: ADD YOUR DISEASE TESTS BELOW THIS LINE
-# =============================================================================
 
 class TestDiseaseRules: # class name start with Test
     # Cover core disease rules with representative tests:
@@ -233,20 +127,7 @@ class TestDiseaseRules: # class name start with Test
         assert abs(results["disease"]["cf"] - highest) < 0.001
 
 
-
-# =============================================================================
-# MEMBER B: ADD YOUR DISEASE TESTS ABOVE THIS LINE
-# =============================================================================
-
-
-# =============================================================================
 # Run Tests
-# =============================================================================
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
-
-# =============================================================================
-# END OF test_disease.py
-# =============================================================================

@@ -1,137 +1,71 @@
-;;;============================================================
-;;; disease_rules.clp
-;;; Owner: Member B (Disease Knowledge Engineer)
-;;;
-;;; PURPOSE:
-;;;   This file contains all disease diagnosis rules for the
-;;;   tomato expert system. Rules should be validated against
-;;;   literature sources for academic credibility.
-;;;
-;;; IMPORTANT FOR MEMBER B:
-;;;   - Write rules in the DISEASE module
-;;;   - Use the predefined fact templates (see below)
-;;;   - Each rule should have a meaningful explanation string
-;;;   - CF values should be justified from literature
+;;; This disease_rules.clp contains all the disease diagonosis rules
+;;; tomato expert system. 
 ;;;
 ;;;============================================================
-
-;;;------------------------------------------------------------
-;;; FACT TEMPLATES (DO NOT MODIFY - Defined in main_system.clp)
-;;;------------------------------------------------------------
-;;;
-;;; INPUT: Symptoms from user
-;;; (symptom
-;;;    (name <SYMBOL>)         ; e.g., yellow-leaves, brown-spots
-;;;    (severity <SYMBOL>)     ; mild, moderate, severe
-;;;    (cf <FLOAT>))           ; certainty [0.0, 1.0]
-;;;
-;;; OUTPUT: Disease diagnosis
-;;; (disease
-;;;    (name <SYMBOL>)         ; e.g., early-blight, bacterial-spot
-;;;    (cf <FLOAT>)            ; certainty [-1.0, 1.0]
-;;;    (explanation <STRING>)) ; reasoning for this conclusion
-;;;
-;;;------------------------------------------------------------
-
-;;;------------------------------------------------------------
-;;; EXPECTED SYMPTOM NAMES (Coordinate with UI - Member A)
-;;;------------------------------------------------------------
-;;;
-;;; Member B should coordinate with Member A to define the
-;;; complete list of symptom names. Examples:
-;;;
-;;;   - yellow-leaves
-;;;   - brown-spots
-;;;   - wilting
-;;;   - leaf-curl
-;;;   - fruit-rot
-;;;   - stem-lesions
-;;;   - mosaic-pattern
-;;;   - stunted-growth
-;;;   - blossom-end-rot
-;;;   - white-powder
-;;;
-;;; TODO: Finalize symptom list with Member A before writing rules
-;;;
-;;;------------------------------------------------------------
-
-;;;------------------------------------------------------------
-;;; EXPECTED DISEASE NAMES (For Integration - Member A)
-;;;------------------------------------------------------------
-;;;
-;;; Member B should define the complete list of diagnosable
-;;; diseases. Examples for tomato:
-;;;
-;;;   - early-blight (Alternaria solani)
-;;;   - late-blight (Phytophthora infestans)
-;;;   - bacterial-spot (Xanthomonas spp.)
-;;;   - fusarium-wilt (Fusarium oxysporum)
-;;;   - tomato-mosaic-virus
-;;;   - septoria-leaf-spot
-;;;   - powdery-mildew
-;;;   - gray-mold (Botrytis cinerea)
-;;;
-;;; TODO: Finalize disease list and share with Member C for
-;;;       disease-nutrient impact mapping
-;;;
-;;;------------------------------------------------------------
-
-;;;------------------------------------------------------------
-;;; RULE WRITING GUIDELINES
-;;;------------------------------------------------------------
-;;;
-;;; 1. Each rule must be in the DISEASE module
-;;;
-;;; 2. Rule naming convention:
-;;;    disease-<disease-name>-<variant>
-;;;    Example: disease-early-blight-primary
-;;;
-;;; 3. Each rule should include:
-;;;    - Meaningful symptom combinations
-;;;    - Appropriate CF values (with literature justification)
-;;;    - Clear explanation string
-;;;
-;;; 4. CF Value Guidelines:
-;;;    - 0.8 - 1.0: Very strong evidence
-;;;    - 0.6 - 0.8: Strong evidence
-;;;    - 0.4 - 0.6: Moderate evidence
-;;;    - 0.2 - 0.4: Weak evidence
-;;;    - < 0.2: Very weak evidence
-;;;
-;;; 5. Example rule structure:
-;;;
-;;;    (defrule DISEASE::disease-early-blight-primary
-;;;       "Diagnose early blight based on characteristic symptoms"
-;;;       (symptom (name brown-spots) (severity ?s1))
-;;;       (symptom (name yellow-leaves) (severity ?s2))
-;;;       (symptom (name concentric-rings) (cf ?cf3))
-;;;       =>
-;;;       (bind ?combined-cf (* 0.85 ?cf3))  ; Adjust based on evidence
-;;;       (assert (disease 
-;;;          (name early-blight)
-;;;          (cf ?combined-cf)
-;;;          (explanation "Early blight diagnosed based on brown spots 
-;;;                        with concentric rings and yellowing leaves. 
-;;;                        Ref: [Citation]"))))
-;;;
-;;;------------------------------------------------------------
-
-;;;------------------------------------------------------------
-;;; PLACEHOLDER: Disease Diagnosis Rules
-;;; TODO: Member B implements actual rules below
-;;;------------------------------------------------------------
-
-;;; ============================================================
-;;; MEMBER B: ADD YOUR DISEASE RULES BELOW THIS LINE
-;;; ============================================================
-
+;;; Disease Rule Design and Validation Workflow
 ;;;============================================================
-;;; Disease helper functions
+;;;
+;;; The disease rules in this expert system are validated using
+;;; a reliable academic reference from the University of Maryland Extension: 
+;;;     Key to Common Problems of Tomatoes | University of Maryland Extension. (n.d.).
+;;;     Extension.umd.edu. https://extension.umd.edu/resource/key-common-problems-tomatoes/
+;;;
+;;; Each symptom is defined as either a core symptom or a
+;;; supporting symptom based on its importance score which is calculated by adding 
+;;; frequency (from the reference) and specificity (how many times the symptoms appear in all diseases) 
+;;; to the disease.
+;;;
+;;; Symptom selection is based on importance score thresholds:
+;;; - If the score is greater than or equal to 4, core symptoms
+;;;   are selected.
+;;; - If the score is less than 2, the two highest scores are
+;;;   selected.
+;;;
+;;; Certainty Factor (CF) values are assigned according to
+;;; disease occurrence frequency:
+;;; - Very Common   : 0.85
+;;; - Common        : 0.65
+;;; - Not Common    : 0.55
+;;; - Occasional    : 0.45
+;;;
+;;; Three types of rules are defined for each disease:
+;;; - Strong rules  : Two or more core symptoms
+;;; - Medium rules  : One core and two or more support symptoms
+;;; - Weak rules    : One core symptom
+;;;
+;;; Rule CF values are assigned as follows:
+;;; - Strong : 0.9
+;;; - Medium : 0.7
+;;; - Weak   : 0.45
+;;;
+;;; Reinforcement rules are applied when symptom CF values
+;;; are low (not common or occasional):
+;;; - If CF < 0.55, reinforcement is calculated as:
+;;;   CF = 1 - (1 - CF_i)
+;;; - Otherwise, the minimum CF is selected.
+;;;
+;;; Salience values are assigned to control rule priority:
+;;; - Strong rules  : 30
+;;; - Medium rules  : 20
+;;; - Weak rules    : 10
+;;;
+;;; Each rule also includes the condition:
+;;; (not (disease (name xxx)))
+;;; to ensure that once a disease is asserted, no other
+;;; rules for the same disease will fire again.
+;;;
+;;; The combination of salience and the (not) condition
+;;; prevents double counting and duplicate diagnoses.
+;;;
 ;;;============================================================
+;;; Disease Domain knowledge Base
+;;;============================================================
+;;; Total 6 diseases and 21 symptoms
+;;; The following disease-symptom template maps disease symptoms to their corresponding CF scores
 
 (deffacts MAIN::disease-symptom-table
 
-;; ================= EARLY BLIGHT =================
+;;; ================= EARLY BLIGHT =================
 (disease-symptom (disease early-blight) (symptom brown-leaf-spots)   (role core) (cf 0.85))
 (disease-symptom (disease early-blight) (symptom yellow-halos)       (role core) (cf 0.85))
 (disease-symptom (disease early-blight) (symptom bulls-eye-pattern)  (role core) (cf 0.85))
@@ -166,7 +100,7 @@
 )
 
 ;;;============================================================
-;;; Probabilistic OR
+;;; Probabilistic OR gate: used to reinforce for all weak evidence
 ;;;============================================================
 
 (deffunction DISEASE::prob-or ($?cfs)
@@ -180,7 +114,7 @@
 )
 
 ;;;============================================================
-;;; Constants
+;;; Rule CF
 ;;;============================================================
 
 (defglobal
@@ -190,8 +124,8 @@
 )
 
 ;;;============================================================
-;;; EARLY BLIGHT (No Support)
-;;; Core: brown-leaf-spots, yellow-halos, bulls-eye-pattern, ;;; lower-leaves-first, dark-fruit-lesions
+;;; EARLY BLIGHT (No Medium rule)
+;;; Core: brown-leaf-spots, yellow-halos, bulls-eye-pattern, lower-leaves-first, dark-fruit-lesions
 ;;;============================================================
 
 (defrule DISEASE::early-blight-strong
@@ -229,7 +163,7 @@
 )
 
 ;;;============================================================
-;;; SEPTORIA (No Support)
+;;; SEPTORIA (No Medium rule)
 ;;; Core: small-gray-tan-spots, dark-spot-margins
 ;;;============================================================
 
@@ -268,7 +202,7 @@
 )
 
 ;;;============================================================
-;;; LATE BLIGHT
+;;; LATE BLIGHT (No Medium rule)
 ;;; Core: water-soaked-blotches, oily-fruit-lesions 
 ;;; Support: rapid-leaf-browning
 ;;;============================================================
@@ -395,7 +329,7 @@
 )
 
 ;;;============================================================
-;;; MOSAIC
+;;; MOSAIC (No Medium rule)
 ;;; Core: leaf-mottling, leaf-distortion 
 ;;; Support: stunted-growth
 ;;;============================================================
@@ -523,13 +457,3 @@
       (explanation "Bacterial: single core symptom.")
       (evidence (create$ ?s))))
 )
-
-
-
-;;; ============================================================
-;;; MEMBER B: ADD YOUR DISEASE RULES ABOVE THIS LINE
-;;; ============================================================
-
-;;;============================================================
-;;; END OF disease_rules.clp
-;;;============================================================
