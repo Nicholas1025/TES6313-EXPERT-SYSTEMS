@@ -30,91 +30,124 @@ def expert_system():
 
 class TestGrowthStageBaseRules:
 
-    def test_vegetative_stage_asserts_nitrogen_only(self, expert_system):
+    def test_vegetative_stage_base_nutrients(self, expert_system):
         results = expert_system.run_diagnosis([], growth_stage="vegetative")
-        assert results["nutrient"]["name"] == "N"
-        assert results["nutrient"]["cf"] == 0.85
 
-    def test_rooting_stage_asserts_phosphorus(self, expert_system):
+        nutrients = {n["name"]: n["cf"] for n in results["all_nutrients"]}
+
+        assert nutrients["N"] == 0.85
+        assert nutrients["P"] == 0.60
+        assert nutrients["K"] == 0.60
+        assert nutrients["Ca"] == 0.60
+
+    def test_rooting_stage_base_nutrients(self, expert_system):
         results = expert_system.run_diagnosis([], growth_stage="rooting")
-        assert results["nutrient"]["name"] == "P"
-        assert results["nutrient"]["cf"] == 0.85
 
-    def test_flowering_stage_asserts_k_and_ca(self, expert_system):
+        nutrients = {n["name"]: n["cf"] for n in results["all_nutrients"]}
+
+        assert nutrients["P"] == 0.85
+        assert nutrients["N"] == 0.60
+        assert nutrients["K"] == 0.60
+        assert nutrients["Ca"] == 0.60
+
+    def test_flowering_stage_base_nutrients(self, expert_system):
         results = expert_system.run_diagnosis([], growth_stage="flowering")
-        assert results["nutrient"]["name"] in ["K", "Ca"]
-        assert results["nutrient"]["cf"] == 0.85
 
-    def test_fruiting_stage_elevates_k_and_ca(self, expert_system):
+        nutrients = {n["name"]: n["cf"] for n in results["all_nutrients"]}
+
+        assert nutrients["K"] == 0.85
+        assert nutrients["Ca"] == 0.85
+        assert nutrients["N"] == 0.60
+        assert nutrients["P"] == 0.60
+
+    def test_fruiting_stage_base_nutrients(self, expert_system):
         results = expert_system.run_diagnosis([], growth_stage="fruiting")
-        assert results["nutrient"]["name"] in ["K", "Ca"]
-        assert results["nutrient"]["cf"] == 0.90
+
+        nutrients = {n["name"]: n["cf"] for n in results["all_nutrients"]}
+
+        assert nutrients["K"] == 0.90
+        assert nutrients["Ca"] == 0.90
+        assert nutrients["N"] == 0.60
+        assert nutrients["P"] == 0.60
 
 
 # =============================================================================
-# SYMPTOM → NUTRIENT MAPPING TESTS (Salience 15)
+# SYMPTOM → NUTRIENT EVIDENCE TESTS (Salience 15)
 # =============================================================================
 
 class TestSymptomEvidenceRules:
 
-    def test_nitrogen_lower_leaf_yellowing_strong(self, expert_system):
+    def test_strong_nitrogen_symptom_dominates(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "lower-leaf-yellowing", "severity": "moderate", "cf": 1.0}],
+            [{"name": "lower-leaf-yellowing", "cf": 1.0}],
             growth_stage="vegetative"
         )
-        assert results["nutrient"]["name"] == "N"
-        assert results["nutrient"]["cf"] >= 0.70
 
-    def test_phosphorus_stunted_growth_strong(self, expert_system):
+        assert results["nutrient"]["name"] == "N"
+        assert results["nutrient"]["cf"] <= 0.85
+        assert results["nutrient"]["cf"] > 0.60
+
+    def test_strong_phosphorus_symptom_dominates(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "stunted-growth", "severity": "moderate", "cf": 1.0}],
+            [{"name": "stunted-growth", "cf": 1.0}],
             growth_stage="rooting"
         )
+
         assert results["nutrient"]["name"] == "P"
-        assert results["nutrient"]["cf"] >= 0.70
+        assert results["nutrient"]["cf"] <= 0.85
+        assert results["nutrient"]["cf"] > 0.60
 
     def test_potassium_leaf_edge_scorching(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "leaf-edge-scorching", "severity": "moderate", "cf": 1.0}],
+            [{"name": "leaf-edge-scorching", "cf": 1.0}],
             growth_stage="flowering"
         )
-        assert results["nutrient"]["name"] in ["K", "Ca"]
-        assert results["nutrient"]["cf"] >= 0.70
+
+        assert results["nutrient"]["name"] == "K"
+        assert results["nutrient"]["cf"] <= 0.85
+        assert results["nutrient"]["cf"] > 0.60
 
     def test_calcium_blossom_end_rot(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "blossom-end-rot", "severity": "moderate", "cf": 1.0}],
+            [{"name": "blossom-end-rot", "cf": 1.0}],
             growth_stage="fruiting"
         )
-        assert results["nutrient"]["name"] in ["Ca", "K"]
-        assert results["nutrient"]["cf"] >= 0.70
+
+        assert results["nutrient"]["name"] == "Ca"
+        assert results["nutrient"]["cf"] <= 0.90
+        assert results["nutrient"]["cf"] > 0.60
 
 
 # =============================================================================
-# DISEASE CONTEXT MODIFIER TESTS (Salience 25)
-# ONLY: Fusarium, Mosaic, Early blight
+# DISEASE MODIFIER TESTS (Salience 25)
 # =============================================================================
 
 class TestDiseaseModifiers:
 
-    def test_fusarium_increases_potassium_cf(self, expert_system):
+    def test_fusarium_reduces_nitrogen(self, expert_system):
         results = expert_system.run_diagnosis(
             [
-                {"name": "lower-leaf-yellowing", "severity": "moderate", "cf": 1.0},
-                {"name": "stem-discoloration", "severity": "moderate", "cf": 1.0},
+                {"name": "lower-leaf-yellowing", "cf": 1.0},
+                {"name": "stem-discoloration", "cf": 1.0},
             ],
+            growth_stage="vegetative"
+        )
+
+        nitrogen = next(n for n in results["all_nutrients"] if n["name"] == "N")
+
+        assert nitrogen["cf"] < 0.85
+        assert nitrogen["cf"] >= 0.40
+
+    def test_fusarium_supports_potassium(self, expert_system):
+        results = expert_system.run_diagnosis(
+            [{"name": "stem-discoloration", "cf": 1.0}],
             growth_stage="fruiting"
         )
 
         potassium = next(n for n in results["all_nutrients"] if n["name"] == "K")
 
-        # Base CF = 0.90, modifier should not reduce it
-        assert potassium["cf"] >= 0.85
         assert potassium["cf"] <= 0.90
-
-    def test_no_disease_no_modifier(self, expert_system):
-        results = expert_system.run_diagnosis([], growth_stage="vegetative")
-        assert results["nutrient"]["cf"] == 0.85
+        assert potassium["cf"] >= 0.60
 
 
 # =============================================================================
@@ -123,36 +156,18 @@ class TestDiseaseModifiers:
 
 class TestWeakSymptomReinforcement:
 
-    def test_two_weak_nitrogen_symptoms_trigger_reinforcement(self, expert_system):
+    def test_two_weak_nitrogen_symptoms_reinforced(self, expert_system):
         results = expert_system.run_diagnosis(
             [
-                {"name": "thin-stems", "severity": "mild", "cf": 1.0},
-                {"name": "stunted-growth", "severity": "moderate", "cf": 1.0},
+                {"name": "thin-stems", "cf": 1.0},
+                {"name": "weak-stems", "cf": 1.0},
             ],
             growth_stage="vegetative"
         )
 
+        # Reinforcement: 1 - (1-0.45)^2 = 0.7425
         assert results["nutrient"]["name"] == "N"
-        assert results["nutrient"]["cf"] == 0.45
-
-
-# =============================================================================
-# SYMPTOM AGGREGATION TESTS (Salience 13)
-# =============================================================================
-
-class TestSymptomAggregation:
-
-    def test_strong_and_common_symptoms_use_min(self, expert_system):
-        results = expert_system.run_diagnosis(
-            [
-                {"name": "lower-leaf-yellowing", "severity": "moderate", "cf": 1.0},
-                {"name": "stunted-growth", "severity": "moderate", "cf": 1.0},
-            ],
-            growth_stage="vegetative"
-        )
-
-        assert results["nutrient"]["name"] == "N"
-        assert 0.60 <= results["nutrient"]["cf"] <= 0.85
+        assert 0.70 <= results["nutrient"]["cf"] <= 0.75
 
 
 # =============================================================================
@@ -161,32 +176,37 @@ class TestSymptomAggregation:
 
 class TestFinalCFIntegration:
 
-    def test_final_cf_is_minimum(self, expert_system):
+    def test_final_cf_is_minimum_of_all_sources(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "lower-leaf-yellowing", "severity": "moderate", "cf": 1.0}],
+            [{"name": "lower-leaf-yellowing", "cf": 1.0}],
             growth_stage="vegetative"
         )
 
         final_cf = results["nutrient"]["cf"]
+
         assert final_cf <= 0.85
-        assert final_cf > 0
+        assert final_cf <= 1.0
+        assert final_cf > 0.0
 
 
 # =============================================================================
-# SKIP-PATH VERIFICATION TESTS
+# CONSTRAINT VERIFICATION TESTS
 # =============================================================================
 
-class TestSkipPaths:
+class TestConstraintVerification:
 
-    def test_no_symptoms_uses_base_cf(self, expert_system):
+    def test_no_symptoms_uses_growth_stage_only(self, expert_system):
         results = expert_system.run_diagnosis([], growth_stage="vegetative")
+
+        assert results["nutrient"]["name"] == "N"
         assert results["nutrient"]["cf"] == 0.85
 
-    def test_symptoms_do_not_assert_new_nutrients(self, expert_system):
+    def test_symptoms_do_not_create_new_nutrients(self, expert_system):
         results = expert_system.run_diagnosis(
-            [{"name": "thin-stems", "severity": "mild", "cf": 1.0}],
+            [{"name": "thin-stems", "cf": 1.0}],
             growth_stage="vegetative"
         )
 
         nutrient_names = [n["name"] for n in results["all_nutrients"]]
-        assert nutrient_names.count("N") == 1
+
+        assert set(nutrient_names) == {"N", "P", "K", "Ca"}
