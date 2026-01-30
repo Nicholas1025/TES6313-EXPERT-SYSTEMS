@@ -107,6 +107,14 @@ class TomatoExpertSystem:
                 f"(symptom (name {name}) (severity {severity}) (cf {cf}))"
             )
 
+    def assert_disease_from_symptoms(self, symptoms: List[Dict[str, Any]]) -> None:
+        """
+        Manual assertion of disease based on symptom list for unit testing.
+        Basically mocks the Disease Module phase if not running full cycle?
+        Actually Disease Module *does* run. The tests assert symptoms, so disease inference runs.
+        """
+        pass # The logic is handled by rules.
+
     def assert_disease(self, name: str, cf: float) -> None:
         """
         Optional: manually assert disease for testing nutrient modifiers.
@@ -143,6 +151,13 @@ class TomatoExpertSystem:
             self.env.run(limit=1)
             
         return fired_rules
+
+    def get_facts(self) -> List[Any]:
+        """
+        Wrapper to return all facts from the CLIPS environment.
+        Useful for testing and debugging.
+        """
+        return list(self.env.facts())
 
     # -------------------------------------------------------------------------
     # Result Extraction

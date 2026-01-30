@@ -63,7 +63,7 @@
 
 (defrule NUTRIENT::disease-fusarium-nitrogen-reduction
    (declare (salience 25))
-   (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.70)))
+   (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.55)))
    ?nFact <- (nutrient
                 (name N)
                 (cf ?ncf&:(> ?ncf 0.1))
@@ -130,7 +130,7 @@
    (nutrient (name N))
    (not (symptom-cf (nutrient N) (cf 0.85)))
    =>
-   (assert (symptom-cf (nutrient N) (cf 0.85)))
+   (assert (symptom-cf (nutrient N) (source lower-leaf-yellowing) (cf 0.85)))
    (printout t "RULE FIRED [Salience 15]: Symptom lower-leaf-yellowing → N symptom-cf=0.85 (strong indicator)" crlf))
 
 (defrule NUTRIENT::symptom-nitrogen-leaf-yellowing
@@ -140,7 +140,7 @@
    (nutrient (name N))
    (not (symptom-cf (nutrient N) (cf 0.85)))
    =>
-   (assert (symptom-cf (nutrient N) (cf 0.65)))
+   (assert (symptom-cf (nutrient N) (source leaf-yellowing) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom leaf-yellowing → N symptom-cf=0.65 (common indicator)" crlf))
 
 (defrule NUTRIENT::symptom-nitrogen-stunted-growth
@@ -148,7 +148,7 @@
    (symptom (name stunted-growth))
    (nutrient (name N))
    =>
-   (assert (symptom-cf (nutrient N) (cf 0.65)))
+   (assert (symptom-cf (nutrient N) (source stunted-growth) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom stunted-growth → N symptom-cf=0.65 (common indicator)" crlf))
 
 (defrule NUTRIENT::symptom-nitrogen-thin-stems
@@ -156,7 +156,7 @@
    (symptom (name thin-stems))
    (nutrient (name N))
    =>
-   (assert (symptom-cf (nutrient N) (cf 0.45)))
+   (assert (symptom-cf (nutrient N) (source thin-stems) (cf 0.45)))
    (printout t "RULE FIRED [Salience 15]: Symptom thin-stems → N symptom-cf=0.45 (weak indicator)" crlf))
 
 ;;;========== PHOSPHORUS SYMPTOM RULES ==========
@@ -166,7 +166,7 @@
    (symptom (name stunted-growth))
    (nutrient (name P))
    =>
-   (assert (symptom-cf (nutrient P) (cf 0.85)))
+   (assert (symptom-cf (nutrient P) (source stunted-growth) (cf 0.85)))
    (printout t "RULE FIRED [Salience 15]: Symptom stunted-growth → P symptom-cf=0.85 (strong indicator)" crlf))
 
 (defrule NUTRIENT::symptom-phosphorus-dark-green-purplish-leaves
@@ -174,7 +174,7 @@
    (symptom (name dark-green-or-purplish-leaves))
    (nutrient (name P))
    =>
-   (assert (symptom-cf (nutrient P) (cf 0.85)))
+   (assert (symptom-cf (nutrient P) (source dark-green-or-purplish-leaves) (cf 0.85)))
    (printout t "RULE FIRED [Salience 15]: Symptom dark-green-or-purplish-leaves → P symptom-cf=0.85 (strong indicator)" crlf))
 
 (defrule NUTRIENT::symptom-phosphorus-delayed-flowering
@@ -182,7 +182,7 @@
    (symptom (name delayed-flowering))
    (nutrient (name P))
    =>
-   (assert (symptom-cf (nutrient P) (cf 0.65)))
+   (assert (symptom-cf (nutrient P) (source delayed-flowering) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom delayed-flowering → P symptom-cf=0.65 (common indicator)" crlf))
 
 ;;;========== POTASSIUM SYMPTOM RULES ==========
@@ -192,7 +192,7 @@
    (symptom (name leaf-edge-scorching))
    (nutrient (name K))
    =>
-   (assert (symptom-cf (nutrient K) (cf 0.85)))
+   (assert (symptom-cf (nutrient K) (source leaf-edge-scorching) (cf 0.85)))
    (printout t "RULE FIRED [Salience 15]: Symptom leaf-edge-scorching → K symptom-cf=0.85 (strong indicator)" crlf))
 
 (defrule NUTRIENT::symptom-potassium-poor-fruit-quality
@@ -200,7 +200,7 @@
    (symptom (name poor-fruit-quality))
    (nutrient (name K))
    =>
-   (assert (symptom-cf (nutrient K) (cf 0.65)))
+   (assert (symptom-cf (nutrient K) (source poor-fruit-quality) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom poor-fruit-quality → K symptom-cf=0.65 (common indicator)" crlf))
 
 (defrule NUTRIENT::symptom-potassium-increased-fruit-acidity
@@ -208,7 +208,7 @@
    (symptom (name increased-fruit-acidity))
    (nutrient (name K))
    =>
-   (assert (symptom-cf (nutrient K) (cf 0.65)))
+   (assert (symptom-cf (nutrient K) (source increased-fruit-acidity) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom increased-fruit-acidity → K symptom-cf=0.65 (common indicator)" crlf))
 
 (defrule NUTRIENT::symptom-potassium-weak-stems
@@ -216,7 +216,7 @@
    (symptom (name weak-stems))
    (nutrient (name K))
    =>
-   (assert (symptom-cf (nutrient K) (cf 0.45)))
+   (assert (symptom-cf (nutrient K) (source weak-stems) (cf 0.45)))
    (printout t "RULE FIRED [Salience 15]: Symptom weak-stems → K symptom-cf=0.45 (weak indicator)" crlf))
 
 ;;;========== CALCIUM SYMPTOM RULES ==========
@@ -226,7 +226,7 @@
    (symptom (name blossom-end-rot))
    (nutrient (name Ca))
    =>
-   (assert (symptom-cf (nutrient Ca) (cf 0.85)))
+   (assert (symptom-cf (nutrient Ca) (source blossom-end-rot) (cf 0.85)))
    (printout t "RULE FIRED [Salience 15]: Symptom blossom-end-rot → Ca symptom-cf=0.85 (strong indicator)" crlf))
 
 (defrule NUTRIENT::symptom-calcium-young-leaf-tip-necrosis
@@ -234,7 +234,7 @@
    (symptom (name young-leaf-tip-necrosis))
    (nutrient (name Ca))
    =>
-   (assert (symptom-cf (nutrient Ca) (cf 0.65)))
+   (assert (symptom-cf (nutrient Ca) (source young-leaf-tip-necrosis) (cf 0.65)))
    (printout t "RULE FIRED [Salience 15]: Symptom young-leaf-tip-necrosis → Ca symptom-cf=0.65 (common indicator)" crlf))
 
 (defrule NUTRIENT::symptom-calcium-poor-fruit-firmness
@@ -242,7 +242,7 @@
    (symptom (name poor-fruit-firmness))
    (nutrient (name Ca))
    =>
-   (assert (symptom-cf (nutrient Ca) (cf 0.45)))
+   (assert (symptom-cf (nutrient Ca) (source poor-fruit-firmness) (cf 0.45)))
    (printout t "RULE FIRED [Salience 15]: Symptom poor-fruit-firmness → Ca symptom-cf=0.45 (weak indicator)" crlf))
 
 
@@ -250,9 +250,9 @@
 
 (defrule NUTRIENT::weak-symptom-reinforcement
    (declare (salience 14))
-   (symptom-cf (nutrient ?n) (cf ?cf1&:(<= ?cf1 0.55)))
-   (symptom-cf (nutrient ?n) (cf ?cf2&:(<= ?cf2 0.55)))
-   (test (neq ?cf1 ?cf2))
+   (symptom-cf (nutrient ?n) (cf ?cf1&:(<= ?cf1 0.55)) (source ?s1))
+   (symptom-cf (nutrient ?n) (cf ?cf2&:(<= ?cf2 0.55)) (source ?s2))
+   (test (neq ?s1 ?s2))
    (not (symptom-cf-final (nutrient ?n)))
    =>
    (bind ?prob-or (- 1.0 (* (- 1.0 ?cf1) (- 1.0 ?cf2))))
@@ -279,9 +279,9 @@
    (test (neq ?cf1 ?cf2))
    (not (symptom-cf-final (nutrient ?n)))
    =>
-   (bind ?min-cf (min ?cf1 ?cf2))
-   (assert (symptom-cf-final (nutrient ?n) (cf ?min-cf)))
-   (printout t "RULE FIRED [Salience 13]: Symptom aggregation (multiple) → " ?n " symptom-cf-final=" ?min-cf crlf))
+   (bind ?max-cf (max ?cf1 ?cf2))
+   (assert (symptom-cf-final (nutrient ?n) (cf ?max-cf)))
+   (printout t "RULE FIRED [Salience 13]: Symptom aggregation (multiple) → " ?n " symptom-cf-final=" ?max-cf crlf))
 
 
 ;;; FINAL NUTRIENT CF INTEGRATION (Salience -50)
@@ -308,6 +308,6 @@
    (assert (nutrient-final
       (name ?name)
       (cf ?final-cf)))
-   (printout t "FINAL RESOLUTION [Salience -50]: Nutrient " ?name " → Final CF = " ?final-cf crlf))
+   (printout t "FINAL RESOLUTION [Salience -50]: Nutrient " ?name " (No Symptoms) → Final CF = " ?final-cf crlf))
 
 

@@ -81,7 +81,7 @@
 (disease-symptom (disease late-blight) (symptom oily-fruit-lesions)    (role core)    (cf 0.55))
 (disease-symptom (disease late-blight) (symptom rapid-leaf-browning)   (role support) (cf 0.55))
 
-;; ================= FUSARIUM =================
+;;; ================= FUSARIUM =================
 (disease-symptom (disease fusarium) (symptom lower-leaf-yellowing) (role core)    (cf 0.65))
 (disease-symptom (disease fusarium) (symptom stem-discoloration)   (role core)    (cf 0.65))
 (disease-symptom (disease fusarium) (symptom plant-wilting)        (role support) (cf 0.65))
@@ -246,6 +246,25 @@
 ;;; Core: lower-leaf-yellowing, stem-discoloration 
 ;;; Support: plant-wilting, bottom-up-collapse
 ;;;============================================================
+
+(defrule DISEASE::fusarium-strong
+   (declare (salience 30))
+   (not (disease (name fusarium-wilt)))
+
+   (symptom (name ?s1))
+   (symptom (name ?s2))
+
+   (disease-symptom (disease fusarium) (symptom ?s1) (role core) (cf ?c1))
+   (disease-symptom (disease fusarium) (symptom ?s2) (role core) (cf ?c2))
+
+   (test (neq ?s1 ?s2))
+=>
+   (assert (disease
+      (name fusarium-wilt)
+      (cf (* (min ?c1 ?c2) ?*RULE-CF-STRONG*))
+      (explanation (str-cat "Fusarium wilt diagnosed based on symptoms: " ?s1 ", " ?s2))
+      (evidence (create$ ?s1 ?s2))))
+)
 
 (defrule DISEASE::fusarium-strong
    (declare (salience 30))

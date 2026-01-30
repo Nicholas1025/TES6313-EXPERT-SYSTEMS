@@ -137,7 +137,9 @@
 (deftemplate MAIN::symptom-cf
    "Stores CF value for a nutrient from a symptom"
    (slot nutrient (type SYMBOL))       ; which nutrient this supports
-   (slot cf (type FLOAT)))             ; CF from symptom evidence
+   (slot cf (type FLOAT))              ; CF from symptom evidence
+   (slot source (type SYMBOL)          ; which symptom caused this (for reinforcement logic)
+         (default unknown)))
 
 ;;; Final aggregated symptom CF (after aggregation/reinforcement)
 ;;; Asserted by: nutrient_rules.clp (Member C)

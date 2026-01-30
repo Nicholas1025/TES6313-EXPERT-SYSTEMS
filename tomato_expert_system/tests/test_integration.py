@@ -236,7 +236,7 @@ class TestReasoningOrder:
         
         # Check facts contain symptoms
         facts = expert_system.get_facts()
-        fact_str = " ".join(facts)
+        fact_str = " ".join([str(f) for f in facts])
         
         assert "yellow-leaves" in fact_str
         assert "brown-spots" in fact_str
