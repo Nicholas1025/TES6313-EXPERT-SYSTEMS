@@ -114,6 +114,8 @@ def init_session_state():
         st.session_state.results = None
     if "expert_system" not in st.session_state:
         st.session_state.expert_system = TomatoExpertSystem()
+    if "growth_stage" not in st.session_state:
+        st.session_state.growth_stage = "vegetative"
 
 
 # =============================================================================
@@ -144,63 +146,57 @@ def render_header():
 
 
 def render_symptom_input():
-    """Render the symptom input section."""
-    st.sidebar.markdown("## 📋 Clinical Observation")
-    st.sidebar.caption("Select observed symptoms and severity levels.")
+    """Render the simplified symptom input section."""
+    st.sidebar.markdown("## 📋 Observation Input")
     
-    # Get symptom categories and severity options
+    # =========================================================================
+    # STEP 1: Growth Stage Selection (REQUIRED for Member C's nutrient rules)
+    # =========================================================================
+    st.sidebar.markdown("### 🌱 Step 1: Growth Stage")
+    growth_stage = st.sidebar.selectbox(
+        "Select current plant growth stage:",
+        options=["vegetative", "flowering", "fruiting", "rooting"],
+        format_func=lambda x: x.title(),
+        help="Required for nutrient analysis. Select the current developmental stage of your tomato plant."
+    )
+    st.session_state.growth_stage = growth_stage
+    
+    st.sidebar.markdown("---")
+    
+    # =========================================================================
+    # STEP 2: Symptom Selection (Simplified - just checkboxes)
+    # =========================================================================
+    st.sidebar.markdown("### 🔍 Step 2: Observed Symptoms")
+    st.sidebar.caption("Check all symptoms you have observed on the plant.")
+    
     categories = get_symptom_categories()
-    severity_options = load_severity_options()
-    
     selected_symptoms = []
     
-    # Render symptoms by category
     for category, symptoms in categories.items():
-        with st.sidebar.expander(category, expanded=False):
+        with st.sidebar.expander(f"📂 {category}", expanded=False):
             for symptom in symptoms:
-                st.markdown(f"**{get_symptom_display_name(symptom)}**")
-                col_check, col_sev, col_cf = st.columns([1, 3, 2])
-                
-                # Checkbox
-                with col_check:
-                    is_selected = st.checkbox(
-                        "Observed",
-                        key=f"symptom_{symptom}",
-                        label_visibility="collapsed"
-                    )
+                display_name = get_symptom_display_name(symptom)
+                is_selected = st.checkbox(
+                    display_name,
+                    key=f"symptom_{symptom}",
+                    help=f"Check if you observe: {display_name}"
+                )
                 
                 if is_selected:
-                    # Severity
-                    with col_sev:
-                        severity = st.selectbox(
-                            "Severity",
-                            options=[s[0] for s in severity_options],
-                            format_func=lambda x: x.title(),
-                            key=f"severity_{symptom}",
-                            label_visibility="collapsed",
-                        )
-                    
-                    # CF
-                    with col_cf:
-                        cf = st.number_input(
-                            "CF",
-                            min_value=0.1, max_value=1.0, value=1.0, step=0.1,
-                            key=f"cf_{symptom}",
-                            label_visibility="collapsed",
-                            help="Certainty of observation (0.1 - 1.0)"
-                        )
-                    
-                    selected_symptoms.append({
-                        "name": symptom,
-                        "severity": severity,
-                        "cf": cf,
-                    })
-                st.divider()
+                    selected_symptoms.append({"name": symptom})
     
     st.session_state.selected_symptoms = selected_symptoms
     
+    # Summary
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 📊 Input Summary")
+    st.sidebar.markdown(f"**Growth Stage:** {growth_stage.title()}")
+    st.sidebar.markdown(f"**Symptoms Selected:** {len(selected_symptoms)}")
+    
     if selected_symptoms:
-        st.sidebar.info(f"{len(selected_symptoms)} symptoms recorded")
+        with st.sidebar.expander("View Selected Symptoms"):
+            for s in selected_symptoms:
+                st.markdown(f"• {get_symptom_display_name(s['name'])}")
     
     return selected_symptoms
 
@@ -225,7 +221,8 @@ def run_diagnosis(symptoms: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Run the expert system diagnosis."""
     try:
         system = st.session_state.expert_system
-        results = system.run_diagnosis(symptoms)
+        growth_stage = st.session_state.get("growth_stage", "vegetative")
+        results = system.run_diagnosis(symptoms, growth_stage=growth_stage)
         return results
     except Exception as e:
         st.error(f"Error during diagnosis: {str(e)}")
@@ -273,7 +270,36 @@ def render_results(results: Dict[str, Any], symptoms: List[Dict[str, Any]]):
                 """)
 
     # Reasoning Chain
-    with st.expander("📄 View Full Reasoning Trace"):
+    with st.expander("📄 View Full Reasoning Trace", expanded=True):
+        # =====================================================================
+        # SECTION 1: Fired Rules Trace 
+        # =====================================================================
+        st.markdown("#### 🔥 Inference Process (Fired Rules)")
+        
+        rules_triggered = results.get("rules_triggered", [])
+        if rules_triggered:
+            st.markdown(f"**Total Rules Executed:** `{len(rules_triggered)}`")
+            st.markdown("**Execution Order:**")
+            
+            # Display each rule as a step
+            for i, rule_name in enumerate(rules_triggered, 1):
+                # Format rule name for display
+                display_name = rule_name.replace("-", " ").replace("_", " ").title()
+                st.markdown(f"""
+                <div style='background-color: #f0f7ff; padding: 10px; border-radius: 5px; margin: 5px 0; border-left: 4px solid #3498db;'>
+                    <strong>Step {i}:</strong> <code>{rule_name}</code><br/>
+                    <small style='color: #666;'>→ {display_name}</small>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("No rules were triggered during inference.")
+        
+        st.markdown("---")
+        
+        # =====================================================================
+        # SECTION 2: Reasoning Chain 
+        # =====================================================================
+        st.markdown("#### 📝 Reasoning Chain Summary")
         symptom_names = [s["name"] for s in symptoms]
         reasoning = format_reasoning_chain(
             symptom_names,
@@ -281,6 +307,7 @@ def render_results(results: Dict[str, Any], symptoms: List[Dict[str, Any]]):
             results.get("nutrient"),
             results.get("adjustments"),
         )
+
         st.markdown(reasoning)
 
 

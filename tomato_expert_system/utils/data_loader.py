@@ -21,45 +21,44 @@ from typing import Dict, List, Tuple
 # =============================================================================
 
 # Symptom categories and their associated symptoms
-# TODO: Coordinate with Member B and Member C to finalize this list
+# Updated based on Member B and Member C rule requirements
 SYMPTOM_CATEGORIES: Dict[str, List[str]] = {
-    "Leaf Symptoms": [
-        "yellow-leaves",
-        "brown-spots",
-        "leaf-curl",
-        "wilting",
-        "leaf-drop",
-        "pale-green-leaves",
-        "interveinal-chlorosis",
-        "leaf-necrosis",
-        "mosaic-pattern",
-        "white-powder",
-        "purple-leaves",
-        "bronze-leaves",
-    ],
-    "Fruit Symptoms": [
-        "fruit-rot",
-        "blossom-end-rot",
-        "fruit-spots",
-        "cracking",
-        "uneven-ripening",
-        "small-fruit",
-        "misshapen-fruit",
-    ],
-    "Stem Symptoms": [
-        "stem-lesions",
-        "stem-canker",
+    "Leaves & Stems": [
+        "brown-leaf-spots",
+        "yellow-halos",
+        "bulls-eye-pattern",
+        "lower-leaves-first",
+        "small-gray-tan-spots",
+        "dark-spot-margins",
+        "water-soaked-blotches",
+        "rapid-leaf-browning",
+        "lower-leaf-yellowing",
         "stem-discoloration",
-        "stem-splitting",
+        "leaf-mottling",
+        "leaf-distortion",
+        "small-dark-spots",
+        "leaf-yellowing",
+        "spots-merging",
+        "leaf-drop",
+        "young-leaf-tip-necrosis",
+        "dark-green-or-purplish-leaves",
+        "leaf-edge-scorching",
+        "weak-stems",
+        "thin-stems"
     ],
-    "Root Symptoms": [
-        "root-rot",
-        "stunted-roots",
+    "Blossoms & Fruits": [
+        "dark-fruit-lesions",
+        "oily-fruit-lesions",
+        "blossom-end-rot",
+        "poor-fruit-quality",
+        "increased-fruit-acidity",
+        "poor-fruit-firmness",
+        "delayed-flowering"
     ],
     "Whole Plant": [
-        "stunted-growth",
-        "plant-death",
-        "reduced-yield",
+        "plant-wilting",
+        "bottom-up-collapse",
+        "stunted-growth"
     ]
 }
 

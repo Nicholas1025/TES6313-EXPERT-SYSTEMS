@@ -105,28 +105,22 @@
    ; Not already resolved
    (not (final-disease))
    =>
+   (printout t "RESOLUTION: Selecting disease " ?name1 " with CF " ?cf1 crlf)
    (assert (final-disease 
               (name ?name1) 
               (cf ?cf1) 
               (explanation ?exp1))))
 
-;;; Resolve nutrient conflicts: highest adjusted CF wins
+;;; Resolve nutrient conflicts: highest CF wins (Updated for Member C's schema)
 (defrule RESOLUTION::resolve-nutrient-conflict
-   "Select the nutrient with highest adjusted CF as final recommendation"
+   "Select the nutrient with highest final CF as recommendation"
    (declare (salience 50))
    
-   ; An adjusted nutrient CF exists
-   (adjusted-nutrient-cf 
-      (nutrient-name ?name1) 
-      (adjusted-cf ?cf1))
+   ; A final nutrient calculation exists (from Member C)
+   (nutrient-final (name ?name1) (cf ?cf1))
    
-   ; Get the original explanation
-   (nutrient-deficiency (name ?name1) (explanation ?exp1))
-   
-   ; No other nutrient has higher adjusted CF
-   (not (adjusted-nutrient-cf 
-           (nutrient-name ?name2&~?name1) 
-           (adjusted-cf ?cf2&:(> ?cf2 ?cf1))))
+   ; No other nutrient has higher CF
+   (not (nutrient-final (name ?name2&~?name1) (cf ?cf2&:(> ?cf2 ?cf1))))
    
    ; Not already resolved
    (not (final-nutrient))
@@ -134,7 +128,7 @@
    (assert (final-nutrient 
               (name ?name1) 
               (cf ?cf1) 
-              (explanation ?exp1))))
+              (explanation "Diagnosis based on integration of growth stage, disease context, and symptoms."))))
 
 ;;; Handle case: no disease diagnosed
 (defrule RESOLUTION::no-disease-found
@@ -149,12 +143,12 @@
               (cf 0.0) 
               (explanation "No disease detected based on provided symptoms."))))
 
-;;; Handle case: no nutrient deficiency found
+;;; Handle case: no nutrient deficiency found (Updated for Member C's schema)
 (defrule RESOLUTION::no-nutrient-found
    "Handle case when no nutrient deficiency is identified"
    (declare (salience 30))
    
-   (not (nutrient-deficiency (name ?)))
+   (not (nutrient-final (name ?)))
    (not (final-nutrient))
    =>
    (assert (final-nutrient 

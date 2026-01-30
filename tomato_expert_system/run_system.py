@@ -55,7 +55,7 @@ class TomatoExpertSystem:
             "main_system.clp",
             "disease_rules.clp",
             "nutrient_rules.clp",
-            # "integration.clp",  # TODO: Fix syntax errors before loading
+            "integration.clp",
         ]
 
         for filename in rule_files:
@@ -107,8 +107,27 @@ class TomatoExpertSystem:
     # Inference
     # -------------------------------------------------------------------------
 
-    def run_inference(self) -> int:
-        return self.env.run()
+    def run_inference(self) -> List[str]:
+        """
+        Runs execution step-by-step to capture the sequence of fired rules.
+        Returns a list of rule names in the order they were executed.
+        """
+        fired_rules = []
+        
+        while True:
+            # Check the agenda to see what is about to fire
+            activations = list(self.env.activations())
+            if not activations:
+                break
+                
+            # The first activation is the one that will fire next (highest salience)
+            next_activation = activations[0]
+            fired_rules.append(next_activation.name)
+            
+            # Run one step
+            self.env.run(limit=1)
+            
+        return fired_rules
 
     # -------------------------------------------------------------------------
     # Result Extraction
@@ -138,6 +157,7 @@ class TomatoExpertSystem:
                 results["nutrient"] = {
                     "name": str(fact["name"]),
                     "cf": float(fact["cf"]),
+                    "explanation": str(fact["explanation"]),
                 }
 
             elif template == "disease":
@@ -207,11 +227,12 @@ class TomatoExpertSystem:
         self.assert_symptoms(symptoms)
 
         # RUN
-        rules_fired = self.run_inference()
+        fired_trace = self.run_inference()
 
         # OUTPUT
         results = self.extract_results()
-        results["rules_fired"] = rules_fired
+        results["rules_fired"] = len(fired_trace)
+        results["rules_triggered"] = fired_trace
         return results
 
     # -------------------------------------------------------------------------
@@ -241,13 +262,45 @@ def run_quick_diagnosis(symptoms: List[Dict[str, Any]]) -> Dict[str, Any]:
 if __name__ == "__main__":
     system = TomatoExpertSystem()
 
-    test_symptoms = [
-        {"name": "pale-green-leaves", "severity": "moderate", "cf": 1.0},
-        {"name": "stunted-growth", "severity": "moderate", "cf": 0.9},
+    # Test 1: Disease Detection (Early Blight)
+    print("=" * 50)
+    print("TEST 1: Disease Detection (Early Blight)")
+    print("=" * 50)
+    test_symptoms_disease = [
+        {"name": "brown-leaf-spots"},
+        {"name": "bulls-eye-pattern"},
     ]
-
-    results = system.run_diagnosis(test_symptoms, growth_stage="vegetative")
-
+    results = system.run_diagnosis(test_symptoms_disease, growth_stage="vegetative")
     print("Rules Fired:", results["rules_fired"])
-    print("Final Phase:", results["phase"])
+    print("Rules Triggered:", results.get("rules_triggered", []))
+    print("Disease Result:", results["disease"])
+    print("All Diseases Found:", results["all_diseases"])
+    print()
+
+    # Test 2: Nutrient Detection (Nitrogen Deficiency)
+    print("=" * 50)
+    print("TEST 2: Nutrient Detection (N Deficiency)")
+    print("=" * 50)
+    test_symptoms_nutrient = [
+        {"name": "lower-leaf-yellowing"},
+        {"name": "stunted-growth"},
+    ]
+    results = system.run_diagnosis(test_symptoms_nutrient, growth_stage="vegetative")
+    print("Rules Fired:", results["rules_fired"])
+    print("Nutrient Result:", results["nutrient"])
+    print()
+
+    # Test 3: Combined (Disease + Nutrient)
+    print("=" * 50)
+    print("TEST 3: Combined (Early Blight + Nutrient)")
+    print("=" * 50)
+    test_combined = [
+        {"name": "brown-leaf-spots"},
+        {"name": "bulls-eye-pattern"},
+        {"name": "lower-leaf-yellowing"},
+    ]
+    results = system.run_diagnosis(test_combined, growth_stage="flowering")
+    print("Rules Fired:", results["rules_fired"])
+    print("Disease Result:", results["disease"])
+    print("All Diseases Found:", results["all_diseases"])
     print("Nutrient Result:", results["nutrient"])
