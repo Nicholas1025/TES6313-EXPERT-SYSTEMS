@@ -32,8 +32,8 @@ Conflict resolution is applied independently within disease conclusions and with
 ## Implementation Overview
 - Inference control and templates are defined in [tomato_expert_system/clips_rules/main_system.clp](tomato_expert_system/clips_rules/main_system.clp).
 - CF adjustment and conflict resolution are defined in [tomato_expert_system/clips_rules/integration.clp](tomato_expert_system/clips_rules/integration.clp).
-- Disease rules are defined by Member B in [tomato_expert_system/clips_rules/disease_rules.clp](tomato_expert_system/clips_rules/disease_rules.clp).
-- Nutrient rules and disease–nutrient impact factors are defined by Member C in [tomato_expert_system/clips_rules/nutrient_rules.clp](tomato_expert_system/clips_rules/nutrient_rules.clp).
+- Disease rules are defined in [tomato_expert_system/clips_rules/disease_rules.clp](tomato_expert_system/clips_rules/disease_rules.clp).
+- Nutrient rules and disease–nutrient impact factors are defined in [tomato_expert_system/clips_rules/nutrient_rules.clp](tomato_expert_system/clips_rules/nutrient_rules.clp).
 - System orchestration is implemented in [tomato_expert_system/run_system.py](tomato_expert_system/run_system.py).
 - The Streamlit UI is implemented in [tomato_expert_system/app.py](tomato_expert_system/app.py).
 
@@ -74,10 +74,14 @@ Use Streamlit to launch the UI:
 - Disease rule tests: [tomato_expert_system/tests/test_disease.py](tomato_expert_system/tests/test_disease.py)
 - Nutrient rule tests: [tomato_expert_system/tests/test_nutrient.py](tomato_expert_system/tests/test_nutrient.py)
 
-## Team Responsibilities
-- **Member A**: System architecture, inference control, CF logic, integration, UI, and system verification.
-- **Member B**: Disease rule engineering and validation.
-- **Member C**: Nutrient rule engineering, impact factor definition, and evaluation.
+## Project Contributors
+This research project and expert system implementation were conducted by:
+
+*   **Nicholas Tay Jun Yang**
+*   **Ong Hai Mei**
+*   **Yap Pei Ying**
+
+The team collectively contributed to the system architecture design, knowledge engineering for disease and nutrient domains, and the development of the uncertainty reasoning framework.
 
 ## Knowledge Sources and Validation
 All disease and nutrient rules must be justified with literature sources. Impact factors should be documented with citations and aligned with agronomic evidence.
