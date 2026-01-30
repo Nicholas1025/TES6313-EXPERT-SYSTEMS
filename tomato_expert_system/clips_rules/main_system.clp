@@ -66,6 +66,8 @@
 
 ;;;------------------------------------------------------------
 ;;; Fact Templates (Shared Schema)
+;;; [Knowledge Part]: Definition of data structures (Ontology)
+;;; representing symptoms, diagnoses, and system states.
 ;;;------------------------------------------------------------
 
 ;;; Symptom fact template

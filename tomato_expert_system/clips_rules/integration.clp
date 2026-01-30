@@ -23,6 +23,8 @@
 
 ;;;------------------------------------------------------------
 ;;; CF Adjustment Rules (INTEGRATION Module)
+;;; [Knowledge Part]: Cross-domain integration logic defining how
+;;; diseases influence nutrient deficiency confidence.
 ;;;------------------------------------------------------------
 
 ;;; Apply disease impact to nutrient CF

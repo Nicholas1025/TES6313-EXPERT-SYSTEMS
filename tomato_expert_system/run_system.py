@@ -78,6 +78,7 @@ class TomatoExpertSystem:
     def assert_growth_stage(self, stage: str) -> None:
         """
         Assert plant growth stage (REQUIRED for nutrient rules).
+        [Verification]: Validates crucial input context before inference.
         """
         self.env.assert_string(
             f"(growth-stage (name {stage}))"
@@ -86,6 +87,7 @@ class TomatoExpertSystem:
     def assert_symptoms(self, symptoms: List[Dict[str, Any]]) -> None:
         """
         Assert symptoms as TEMPLATE-BASED facts.
+        [Verification]: Ensures all input data conforms to the 'symptom' template schema.
         """
         for symptom in symptoms:
             name = symptom.get("name", "unknown")
@@ -110,6 +112,9 @@ class TomatoExpertSystem:
     def run_inference(self) -> List[str]:
         """
         Runs execution step-by-step to capture the sequence of fired rules.
+        [Validation]: Stepwise execution allows verifying the reasoning path
+        matches the expected logic flow (Validation of Logic).
+        [Evaluation]: Returns rule trace to evaluate system performance and complexity.
         Returns a list of rule names in the order they were executed.
         """
         fired_rules = []
