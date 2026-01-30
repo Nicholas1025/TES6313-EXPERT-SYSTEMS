@@ -1,6 +1,5 @@
 """
 test_integration.py
-Owner: Member A (System Architect, Inference & UI Engineer)
 
 Purpose:
     System-level verification tests for the expert system.

@@ -1,6 +1,5 @@
 """
 data_loader.py
-Owner: Member A (System Architect, Inference & UI Engineer)
 
 Purpose:
     Data loading utilities for the expert system.
