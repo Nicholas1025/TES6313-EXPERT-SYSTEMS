@@ -1,6 +1,5 @@
 """
 explanation_utils.py
-Owner: Member A (System Architect, Inference & UI Engineer)
 
 Purpose:
     Explanation generation utilities for the expert system.

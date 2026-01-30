@@ -1,6 +1,5 @@
 """
 utils package
-Owner: Member A (System Architect, Inference & UI Engineer)
 
 This package contains utility modules for the tomato expert system:
 - cf_utils: Certainty factor computation
