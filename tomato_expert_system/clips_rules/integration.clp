@@ -1,24 +1,35 @@
 ;;;============================================================
 ;;; integration.clp
-;;; Owner: Member A (System Architect, Inference & UI Engineer)
+;;; CROSS-DOMAIN INTEGRATION & CONFLICT RESOLUTION LAYER
+;;;============================================================
 ;;;
-;;; Purpose:
-;;;   CF adjustment logic and conflict resolution rules.
-;;;   This file implements the integration layer between
-;;;   disease diagnosis and nutrient recommendations.
+;;; This module implements the "Integration Strategy" defined in
+;;; Chapter 3.4.3. It bridges the gap between the Disease Knowledge Base
+;;; and the Nutrient Knowledge Base.
 ;;;
-;;; Key Formula:
-;;;   Adjusted_Nutrient_CF = Base_Nutrient_CF × Disease_Impact_Factor
+;;; [Integration Model: Disease-Nutrient Interaction]
+;;; Scientific literature suggests that disease stress alters plant
+;;; nutrient uptake. This system models usage via a declarative
+;;; impact factor approach.
 ;;;
-;;; Important:
-;;;   - Disease_Impact_Factor values come from Member C
-;;;   - This file does NOT hardcode any impact factor values
-;;;   - Impact factors are read from (disease-nutrient-impact ...) facts
+;;; Mathematical Model for CF Adjustment:
+;;; --------------------------------------
+;;; CF_adjusted = CF_base * Impact_Factor
 ;;;
-;;; Conflict Resolution:
-;;;   - Applied independently within disease conclusions
-;;;   - Applied independently within nutrient conclusions
-;;;   - Highest CF wins in each category
+;;; Where:
+;;; - CF_base: Initial confidence from nutrient symptoms/growth stage.
+;;; - Impact_Factor: Multiplier defined by domain experts (e.g., 1.2, 0.7).
+;;;
+;;; [Rationale]
+;;; By decoupling the interaction logic from the core diagnosis rules,
+;;; we maintain modularity. The nutrient rules do not need to "know"
+;;; about diseases directly; this layer handles the modification.
+;;;
+;;; [Conflict Resolution Strategy]
+;;; If multiple competing diagnoses exist within a domain (e.g., two
+;;; diseases identified), the system applies a "Maximum Confidence"
+;;; heuristic (Highest CF wins) to select the final output.
+;;;
 ;;;============================================================
 
 ;;;------------------------------------------------------------

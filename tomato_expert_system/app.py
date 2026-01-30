@@ -1,15 +1,19 @@
 """
 app.py
-Owner: Member A (System Architect, Inference & UI Engineer)
+USER INTERFACE LAYER (STREAMLIT)
 
-Purpose:
-    Streamlit user interface for the Tomato Expert System.
-    Provides symptom input, diagnosis execution, and result display.
-    
-    Style: Scientific, Minimalist, Academic, White-theme.
+[Design Philosophy]
+The user interface is designed to meet the usability requirements of
+agricultural domain experts and extension workers. It prioritizes:
+1.  **Minimalist Input**: Reducing cognitive load via checklist-style symptom selection.
+2.  **Visual Feedback**: Immediate visualization of Confidence Factors (CF) via progress bars.
+3.  **Explainability**: Providing "White-Box" transparency into the decision-making
+    process via the "Reasoning Trace" view.
 
-Usage:
-    streamlit run app.py
+[Architecture]
+This file serves as the Presentation Layer. It does not contain business logic.
+It delegates all reasoning tasks to the `TomatoExpertSystem` controller (Business Logic Layer)
+and formats the returned data for consumption.
 """
 
 import streamlit as st

@@ -1,11 +1,21 @@
 """
 run_system.py
-Owner: Member A (System Architect, Inference & UI Engineer)
+EXPERT SYSTEM INFERENCE ENGINE CONTROLLER (PYTHON-CLIPS BRIDGE)
 
-FIXED VERSION
-- Symptoms are TEMPLATE-based (MAIN::symptom)
-- Growth stage is explicitly asserted
-- Compatible with updated main_system.clp and nutrient_rules.clp
+[System Architecture]
+This class acts as the interface layer between the User Interface (Streamlit)
+and the Inference Engine (CLIPS). It is responsible for:
+1.  **Environment Initialization**: Setting up the CLIPS sandbox.
+2.  **Knowledge Acquisition**: Loading the formalized rules (.clp files).
+3.  **Fact Assertion**: Translating Python objects (inputs) into CLIPS facts.
+4.  **Inference Execution**: Managing the run cycle and capturing rule traces.
+5.  **Result Extraction**: Parsing the working memory for final diagnoses.
+
+[Key Feature: Stepwise Inference Tracing]
+To support the "Right to Explanation" in expert systems, this controller
+implements a custom `run_inference()` method that executes the engine
+one rule at a time (`limit=1`). This allows capturing the exact execution
+path (trace) for verification and validation purposes.
 """
 
 from pathlib import Path

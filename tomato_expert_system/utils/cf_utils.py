@@ -1,16 +1,21 @@
 """
 cf_utils.py
-Owner: Member A (System Architect, Inference & UI Engineer)
+UNCERTAINTY MANAGEMENT UTILITIES (CERTAINTY FACTOR LOGIC)
 
-Purpose:
-    Certainty Factor (CF) computation utilities for the expert system.
+[Theoretical Foundation]
+This module implements the Certainty Factor (CF) calculus derived from the
+MYCIN expert system (Shortliffe et al., 1975). It provides the mathematical
+primitives for handling uncertainty in the rule-based environment.
+
+[Core Functions]
+1.  **Combination (`cf_combine`)**: Aggregates evidence from multiple independent sources.
+    Formula: CF_comb = CF1 + CF2 * (1 - CF1)  [for positive evidence]
     
-Functions:
-    - cf_combine: Combine two CFs using MYCIN formula
-    - cf_adjust: Adjust CF by impact factor
-    - cf_compare: Compare two CFs and return the higher one
-    - cf_threshold: Check if CF meets confidence threshold
-    - cf_to_confidence_level: Convert CF to human-readable level
+2.  **Adjustment (`cf_adjust`)**: Modifies confidence based on external context factors.
+    Formula: CF_adj = CF_base * Impact_Factor
+
+[Implementation Note]
+All CF calculations ensure the result remains within the bounded interval [-1.0, 1.0].
 """
 
 from typing import Tuple, Optional

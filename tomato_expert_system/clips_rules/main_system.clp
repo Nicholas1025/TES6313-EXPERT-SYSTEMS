@@ -1,23 +1,35 @@
 ;;;============================================================
 ;;; main_system.clp
-;;; Owner: Member A (System Architect, Inference & UI Engineer)
+;;; EXPERT SYSTEM INFERENCE ARCHITECTURE AND CONTROL
+;;;============================================================
 ;;;
-;;; Purpose:
-;;;   Inference control ONLY — no domain rules here.
-;;;   Controls the reasoning order using CLIPS focus mechanism.
+;;; This module serves as the central nervous system of the expert
+;;; system. It does not contain domain-specific medical knowledge
+;;; (diseases or nutrients) but rather establishes the:
+;;; 1.  System Ontology (Fact Templates)
+;;; 2.  Inference Control Strategy (Module Focus Stack)
+;;; 3.  Execution Workflow (Phases)
 ;;;
-;;; Reasoning Order:
-;;;   1. SYMPTOMS (input phase)
-;;;   2. DISEASE (disease diagnosis)
-;;;   3. INTEGRATION (CF adjustment via impact factors)
-;;;   4. NUTRIENT (nutrient deficiency diagnosis)
-;;;   5. RESOLUTION (conflict resolution within categories)
-;;;   6. OUTPUT (final results)
+;;; [Inference Strategy]
+;;; The system employs a phased forward-chaining approach controlled
+;;; by CLIPS 'focus' mechanism. This ensures a deterministic execution
+;;; order crucial for the integration logic:
 ;;;
-;;; Note:
-;;;   This file does NOT contain any disease or nutrient rules.
-;;;   Domain knowledge is strictly separated in disease_rules.clp
-;;;   and nutrient_rules.clp.
+;;; Phase Sequence:
+;;; 1. SYMPTOMS    : Ingestion of user observations.
+;;; 2. DISEASE     : Primary diagnosis (Disease Domain).
+;;; 3. INTEGRATION : Cross-domain reasoning (Disease -> Nutrient).
+;;;                  *Crucial for adjusting nutrient confidence based on
+;;;                   pathological context.*
+;;; 4. NUTRIENT    : Secondary diagnosis (Nutrient Domain).
+;;; 5. RESOLUTION  : Conflict resolution and final selection.
+;;; 6. OUTPUT      : Formatting results for the host application.
+;;;
+;;; [Knowledge Representation]
+;;; Data is modeled using 'deftemplate' constructs to enforce strict
+;;; schema validation. This ensures that symptoms, diseases, and
+;;; nutrients share a consistent structure across all modules.
+;;;
 ;;;============================================================
 
 ;;;------------------------------------------------------------
