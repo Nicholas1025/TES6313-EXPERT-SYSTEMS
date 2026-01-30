@@ -78,7 +78,7 @@
 (defrule NUTRIENT::disease-fusarium-potassium-increase
    (declare (salience 25))
    (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.55)))
-   ?kFact <- (nutrient (name K) (cf ?kcf) (base-cf ?kbcf))
+   ?kFact <- (nutrient (name K) (cf ?kcf) (base-cf ?kbcf) (modified no))
    =>
    (bind ?adjusted (min ?kbcf (* ?kcf 1.2)))
    (modify ?kFact (cf ?adjusted) (modified yes))
@@ -87,7 +87,7 @@
 (defrule NUTRIENT::disease-fusarium-calcium-increase
    (declare (salience 25))
    (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.55)))
-   ?caFact <- (nutrient (name Ca) (cf ?cacf) (base-cf ?cabcf))
+   ?caFact <- (nutrient (name Ca) (cf ?cacf) (base-cf ?cabcf) (modified no))
    =>
    (bind ?adjusted (min ?cabcf (* ?cacf 1.1)))
    (modify ?caFact (cf ?adjusted) (modified yes))
@@ -96,7 +96,7 @@
 (defrule NUTRIENT::disease-mosaic-nitrogen-support
    (declare (salience 25))
    (disease (name mosaic-virus) (cf ?dcf&:(>= ?dcf 0.7)))
-   ?nFact <- (nutrient (name N) (cf ?ncf) (base-cf ?nbcf))
+   ?nFact <- (nutrient (name N) (cf ?ncf) (base-cf ?nbcf) (modified no))
    =>
    (bind ?adjusted (min ?nbcf (* ?ncf 1.1)))
    (modify ?nFact (cf ?adjusted) (modified yes))
@@ -105,7 +105,7 @@
 (defrule NUTRIENT::disease-early-blight-nitrogen-reduction
    (declare (salience 25))
    (disease (name early-blight) (cf ?dcf&:(>= ?dcf 0.7)))
-   ?nFact <- (nutrient (name N) (cf ?ncf) (base-cf ?nbcf))
+   ?nFact <- (nutrient (name N) (cf ?ncf) (base-cf ?nbcf) (modified no))
    =>
    (bind ?adjusted (* ?ncf 0.8))
    (modify ?nFact (cf ?adjusted) (modified yes))
@@ -114,7 +114,7 @@
 (defrule NUTRIENT::disease-early-blight-potassium-support
    (declare (salience 25))
    (disease (name early-blight) (cf ?dcf&:(>= ?dcf 0.7)))
-   ?kFact <- (nutrient (name K) (cf ?kcf) (base-cf ?kbcf))
+   ?kFact <- (nutrient (name K) (cf ?kcf) (base-cf ?kbcf) (modified no))
    =>
    (bind ?adjusted (min ?kbcf (* ?kcf 1.1)))
    (modify ?kFact (cf ?adjusted) (modified yes))
