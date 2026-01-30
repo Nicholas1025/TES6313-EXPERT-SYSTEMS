@@ -6,10 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-# =============================================================================
 # Test Fixtures
-# =============================================================================
-
 @pytest.fixture
 def expert_system():
     """
@@ -24,9 +21,7 @@ def expert_system():
         pytest.skip("CLIPSPY not available")
 
 
-# =============================================================================
 # GROWTH STAGE BASE RULE TESTS (Salience 30)
-# =============================================================================
 
 class TestGrowthStageBaseRules:
 
@@ -71,9 +66,7 @@ class TestGrowthStageBaseRules:
         assert nutrients["P"] == 0.60
 
 
-# =============================================================================
 # SYMPTOM → NUTRIENT EVIDENCE TESTS (Salience 15)
-# =============================================================================
 
 class TestSymptomEvidenceRules:
 
@@ -102,27 +95,41 @@ class TestSymptomEvidenceRules:
             [{"name": "leaf-edge-scorching", "cf": 1.0}],
             growth_stage="vegetative"  # K base=0.60, with symptom K=0.60 (min), N base=0.85 wins
         )
+<<<<<<< HEAD
         # With leaf-edge-scorching, K gets symptom-cf=0.85 but final = min(0.60, 0.60, 0.85) = 0.60
         # N has no symptom, so N gets 0.85. N wins. We verify K is properly detected as deficient.
         potassium = next(n for n in results["all_nutrients"] if n["name"] == "K")
         assert potassium["cf"] == 0.60
         assert potassium["cf"] > 0.0
+=======
+
+        # Potassium must be strongly supported, but calcium may compete
+        assert results["nutrient"]["name"] in ["K", "Ca"]
+        assert results["nutrient"]["cf"] <= 0.85
+        assert results["nutrient"]["cf"] > 0.60
+>>>>>>> 91e0dac72c569face4ab28476d705f99ade852f8
 
     def test_calcium_blossom_end_rot(self, expert_system):
         results = expert_system.run_diagnosis(
             [{"name": "blossom-end-rot", "cf": 1.0}],
             growth_stage="vegetative"  # Ca base=0.60, with symptom Ca=0.60 (min of 0.60, 0.60, 0.85)
         )
+<<<<<<< HEAD
         # With blossom-end-rot, Ca gets symptom-cf=0.85 but final = min(0.60, 0.60, 0.85) = 0.60
         # N has no symptom, so N gets 0.85. N wins. We verify Ca is properly detected as deficient.
         calcium = next(n for n in results["all_nutrients"] if n["name"] == "Ca")
         assert calcium["cf"] == 0.60
         assert calcium["cf"] > 0.0
+=======
+    
+        # Calcium should be favoured, but potassium is also high in fruiting
+        assert results["nutrient"]["name"] in ["Ca", "K"]
+        assert results["nutrient"]["cf"] <= 0.90
+        assert results["nutrient"]["cf"] > 0.60
+>>>>>>> 91e0dac72c569face4ab28476d705f99ade852f8
 
 
-# =============================================================================
 # DISEASE MODIFIER TESTS (Salience 25)
-# =============================================================================
 
 class TestDiseaseModifiers:
 
@@ -152,9 +159,7 @@ class TestDiseaseModifiers:
         assert potassium["cf"] >= 0.60
 
 
-# =============================================================================
 # WEAK SYMPTOM REINFORCEMENT TESTS (Salience 14)
-# =============================================================================
 
 class TestWeakSymptomReinforcement:
 
@@ -225,9 +230,7 @@ class TestWeakSymptomReinforcement:
         assert 0.60 <= results["nutrient"]["cf"] <= 0.70
 
 
-# =============================================================================
 # FINAL CF INTEGRATION TESTS (Salience -50)
-# =============================================================================
 
 class TestFinalCFIntegration:
 
@@ -244,9 +247,7 @@ class TestFinalCFIntegration:
         assert final_cf > 0.0
 
 
-# =============================================================================
 # CONSTRAINT VERIFICATION TESTS
-# =============================================================================
 
 class TestConstraintVerification:
 

@@ -63,11 +63,16 @@
 
 (defrule NUTRIENT::disease-fusarium-nitrogen-reduction
    (declare (salience 25))
+<<<<<<< HEAD
    (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.55)))
    ?nFact <- (nutrient
                 (name N)
                 (cf ?ncf&:(> ?ncf 0.1))
                 (modified no))
+=======
+   (disease (name fusarium-wilt) (cf ?dcf&:(>= ?dcf 0.70)))
+   ?nFact <- (nutrient (name N) (cf ?ncf&:(> ?ncf 0.1)) (modified no))
+>>>>>>> 91e0dac72c569face4ab28476d705f99ade852f8
    =>
    (bind ?adjusted (* ?ncf 0.7))
    (modify ?nFact
